@@ -9,15 +9,17 @@ if(ans=='y'):
     f = open('coord.csv')
     data = [row for row in csv.reader(f)]
     #for coord in csv_f:
-        #print coord
+       #print coord
         #drawing.add(dxf.line(c, d, color=7))
-
+    count=0
     for i in range(len(data)-1):
+        count+=1
+        print count
         print i
         c=tuple(data[i])
         d=tuple(data[i+1])
         print c,d
-        while(len(data)!=8):
+        while(c<=8):
             print c,d
             print 'hi'
             drawing.add(dxf.line(c, d, color=7))
