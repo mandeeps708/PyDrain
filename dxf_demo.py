@@ -1,8 +1,28 @@
 from dxfwrite import DXFEngine as dxf
 import csv
-
 filename =raw_input('Enter a new name for the file:')
 drawing = dxf.drawing(filename+'.dxf')
+points=[]
+count=0
+with open('data.csv', 'rb') as csvfile:
+    file = csv.reader(csvfile, delimiter=' ')
+    for row in file:
+        joined=', '.join(row)
+        print joined
+        plist=joined.split(",")
+        print row
+        points.append(joined)
+        print plist[:1]
+        count+=1
+print points
+for x in range(count):
+    first=points[x]
+    second=points[(x+1)%count]
+    p1='('+first+')'
+    print first.split(",")
+    print first
+    print second
+    drawing.add(dxf.line((first), (second), color=7))
 p8=(-0.8465,215.8)
 p9=(0.8465,215.8)
 drawing.add(dxf.line(p8, p9, color=7))
