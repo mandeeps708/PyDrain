@@ -3,26 +3,37 @@ import csv
 
 filename ="test.dxf"
 drawing = dxf.drawing(filename)
+drawing.add(dxf.line((0,0), (5,19), color=7))
 
 ans=raw_input("Do you want have values from csv file or default?(y/N)?")
 if(ans=='y'):
     f = open('coord.csv')
     data = [row for row in csv.reader(f)]
+    listt=[]
     #for coord in csv_f:
        #print coord
         #drawing.add(dxf.line(c, d, color=7))
-    count=0
+    count=1
     for i in range(len(data)-1):
-        count+=1
-        print count
+        listt.append(data[i])
+        print listt
         print i
         c=tuple(data[i])
         d=tuple(data[i+1])
-        print c,d
-        while(c<=8):
-            print c,d
-            print 'hi'
+        if count<10:
+            #print c,d
+            print 'hi',i
             drawing.add(dxf.line(c, d, color=7))
+        else:
+            print count
+    drawing.add(dxf.line(tuple(data[-1]),tuple(data[0]),color=7))
+    print listt
+#   for i in range(len(data)):
+#       print i
+#       print 'hi'
+#       print data[i][0],data[i][1]
+#       print data[i+1][0], data[i+1][1]
+
 else:
     print "Default values taken!"
     plist=[0,0,5,10,15,10,20,0,35,0,40,10,50,10,55,0,55,0,55,0];
