@@ -6,13 +6,24 @@ filename ="test.dxf"
 drawing = dxf.drawing(filename)
 drawing.add(dxf.line((0,0), (5,19), color=7))
 
+def drawconti(data):
+    for i in range(len(data)-1):
+        #print listt
+        #print i
+        c=tuple(data[i])
+        d=tuple(data[i+1])
+        if i<10:
+            #print c,d
+            print 'hi',i
+            drawing.add(dxf.line(c, d, color=7))
+        else:
+            print i
 ans=raw_input("Do you want have values from csv file or default?(y/N)?")
 if(ans=='y'):
     f = open('coord.csv')
     data = []
     for row in csv.reader(f):
-        if(row.isdigit()):
-            data.append(row)
+        data.append(row)
     #for coord in csv_f:
        #print coord
         #drawing.add(dxf.line(c, d, color=7))
@@ -70,15 +81,3 @@ drawing.save()
 print "Check file test.dxf in current directory."
 
 
-def drawconti(data):
-    for i in range(len(data)-1):
-        #print listt
-        #print i
-        c=tuple(data[i])
-        d=tuple(data[i+1])
-        if i<10:
-            #print c,d
-            print 'hi',i
-            drawing.add(dxf.line(c, d, color=7))
-        else:
-            print i
