@@ -4,7 +4,10 @@ import math
 
 filename ="test.dxf"
 drawing = dxf.drawing(filename)
-drawing.add(dxf.line((0,0), (5,19), color=7))
+
+"""
+Creating Base drain
+"""
 
 def drawconti(data):
     for i in range(len(data)-1):
@@ -12,16 +15,23 @@ def drawconti(data):
         #print i
         c=tuple(data[i])
         d=tuple(data[i+1])
-        if i<10:
+        if i<9:
             #print c,d
             print 'hi',i
             drawing.add(dxf.line(c, d, color=7))
         else:
             print i
+
+
 ans=raw_input("Do you want have values from csv file or default?(y/N)?")
 if(ans=='y'):
     f = open('coord.csv')
     data = []
+
+    """
+    Adding csv lines to list data.
+    """
+
     for row in csv.reader(f):
         data.append(row)
     #for coord in csv_f:
@@ -49,6 +59,9 @@ print "Base created"
 
 print "Now cut section"
 
+"""
+Solving two equations simultaneously.
+"""
 
 def solve(p1x, p1y, p2x, p2y, px, py, theta):
     m1=(p1y-p2y)/(p1x-p2x)
@@ -61,19 +74,18 @@ def solve(p1x, p1y, p2x, p2y, px, py, theta):
     y=m2*x+c2
     return x,y
 
-a1,b1=solve(-1.25,216.7,-1.05,217.05,-0.8465,215.8,180-63.45)
+a1,b1=solve(-1.45,216.7,-1.25,216.7,-0.8465,215.8,180-63.45)
+a2,b2=solve(1.45,216.7,1.25,216.7,0.8465,215.8,63.45)
 print a1,b1
 
-count=0
 for i in range(len(data)-1):
-    count=count+1
-    a=tuple(data[i])
-    b=tuple(data[i+1])
-    if count >=11:
-        print data[i]
-        count=count+1
-        drawing.add(dxf.line(a, b, color=7))
-    drawing.add(dxf.line(tuple(data[-1]),(a1,b1),color=7))
+   a=tuple(data[i])
+   b=tuple(data[i+1])
+   if i>=10:
+       print data[i]
+       drawing.add(dxf.line(a, b, color=7))
+   drawing.add(dxf.line(tuple(data[-1]),(a1,b1),color=7))
+   drawing.add(dxf.line(tuple(data[-2]),(a2,b2),color=7))
 
 drawing.add_layer('TEXTLAYER', color=2)
 drawing.add(dxf.text('Mandeep', insert=(0, 0.2), layer='TEXTLAYER'))
