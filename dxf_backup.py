@@ -2,13 +2,13 @@ from dxfwrite import DXFEngine as dxf
 import csv
 import math
 
-filename ="test.dxf"
-drawing = dxf.drawing(filename)
+filename =raw_input('Enter a new name for the file:')
+drawing = dxf.drawing(filename+'.dxf')
 
 """
 Creating Base drain
 """
-
+points = []
 def drawconti(data):
     for i in range(len(data)-1):
         #print listt
@@ -19,9 +19,9 @@ def drawconti(data):
             #print c,d
             print 'hi',i
             drawing.add(dxf.line(c, d, color=7))
+            points.append(c)
         else:
             print i
-
 
 ans=raw_input("Do you want have values from csv file or default?(y/N)?")
 if(ans=='y'):
@@ -77,6 +77,12 @@ def solve(p1x, p1y, p2x, p2y, px, py, theta):
 a1,b1=solve(-1.45,216.7,-1.25,216.7,-0.8465,215.8,180-63.45)
 a2,b2=solve(1.45,216.7,1.25,216.7,0.8465,215.8,63.45)
 print a1,b1
+points=points[1:]
+e=tuple((a1,b1))
+f=tuple((a2,b2))
+points.append(e)
+points.append(f)
+print points
 
 for i in range(len(data)-1):
    a=tuple(data[i])
@@ -90,6 +96,4 @@ for i in range(len(data)-1):
 drawing.add_layer('TEXTLAYER', color=2)
 drawing.add(dxf.text('Mandeep', insert=(0, 0.2), layer='TEXTLAYER'))
 drawing.save()
-print "Check file test.dxf in current directory."
-
-
+print "Check file "+filename+".dxf in current directory."
