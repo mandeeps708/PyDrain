@@ -72,13 +72,30 @@ def det(x1,y1,x2,y2):
 
 drawconti(data)
 
+#pdb.set_trace() #for debugging (tracing)
+
+
+theta = 180 - 63.43
+theta2 = 180 - theta
+print theta,theta2
 """ (a1, b1) are the coordinates of the intersection points obtained by
 solving the left side and similarly (a2, b2) are for the right side
 intersection.
 """
-a1, b1 = solve(-1.45, 216.7, -1.25, 216.7, -0.8465, 215.8, 180-63.45)
-a2, b2 = solve(1.45, 216.7, 1.25, 216.7, 0.8465, 215.8, 63.45)
-
+if theta >= 90.45 and theta <= 114.77 and theta2 <= 89.55 and theta2 >= 65.23:
+    a1, b1 = solve(-1.05, 217.05, -0.85, 217.05, -0.8465, 216.609, theta)
+    a2, b2 = solve(1.05, 217.05, 0.85, 217.05, 0.8465, 216.609, theta2)
+    print 'first case'
+elif theta > 114.77 and theta <= 167.29 and theta2 < 65.23 and theta2 >= 12.71:
+    a1, b1 = solve(-1.25, 216.7, -1.05, 217.05, -0.8465, 216.609, theta)
+    a2, b2 = solve(1.25, 216.7, 1.05, 217.05, 0.8465, 216.609, theta2)
+    print 'second case'
+elif theta > 167.29 and theta <= 180 and theta2 < 12.71 and theta2 >=0:
+    a1, b1 = solve(-1.45, 216.7, -1.25, 216.7, -0.8465, 216.609, theta)
+    a2, b2 = solve(1.45, 216.7, 1.25, 216.7, 0.8465, 216.609, theta2)
+    print 'third case'
+else:
+    print 'Invalid angle'
 
 # Intersection points.
 intersect1 = tuple((a1, b1))
@@ -120,6 +137,36 @@ print 'Area is: ', area
 
 drawing.add_layer('TEXTLAYER', color=2)
 drawing.add(dxf.text('Mandeep', insert=(0, 0.2), layer='TEXTLAYER'))
+
+
+########## Placing Block Now ##########
+
+#   horizontal = 1.5
+#   blockhlx = -horizontal/2
+#   blockhrx = horizontal/2
+#   blockhy= float(elem1[1])+0.0001
+
+#   drawing.add(dxf.line((blockhlx, blockhy), (blockhrx, blockhy), color=7))
+
+#   vertical = 0.50,216.7
+#   blockvlx = -vertical[0]
+#   blockvrx = vertical[0]
+#   blockvy = vertical[1]
+
+#   drawing.add(dxf.line((blockhlx, blockvy), (blockhlx, blockhy), color=7))
+#   drawing.add(dxf.line((blockhrx, blockvy), (blockhrx, blockhy), color=7))
+
+#   innerver = 0.45, 215.7
+#   iblockvlx = -innerver[0]
+#   iblockvrx = [0]
+#   iblockvy = vertical[1]
+
+#drawing.add(dxf.line((iblockvlx, iblockvy), (iblockvlx, blockvy), color=7))
+
+#block = [['0.50', '216.7'], ['0.45','216.7'], ['0.45', '216'], ['-0.45', '216'], ['-0.45', '216.7'], ['-0.50', '216.7'], ['-0.50', '215.8001'],['0.50','215.8001'],['0.50', '216.7']]
+
+#drawconti(block)
+
 
 # Saving file now.
 drawing.save()
