@@ -64,16 +64,23 @@ def solve(p1x, p1y, p2x, p2y, px, py, theta):
 
 """Determinent of a 2x2 matrix.
 """
-def det(x1,y1,x2,y2):
+def det(x1, y1, x2, y2):
     return float(x1)*float(y2)-float(x2)*float(y1)
 
+"""Finding length of a line from two points
+"""
+def length(px1, py1, px2, py2):
+    py = (py2 - py1) * (py2 - py1)
+    px = (px2 - px1) * (px2 - px1)
+    print 'length is ', math.sqrt(py + px)
+    return math.sqrt(py + px)
 
 #################### Calling Functions ####################
 
 drawconti(data)
 
 #pdb.set_trace() #for debugging (tracing)
-
+length(-1.05, 217.05, -0.8465, 216.609)
 
 theta = 180 - 63.43
 theta2 = 180 - theta
