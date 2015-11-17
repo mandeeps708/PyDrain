@@ -30,7 +30,7 @@ for row in csv.reader(f):
 def drawconti(data):
     for i in range(len(data) - 1):
         element1 = tuple(data[i])
-        element2 =tuple(data[i+1])
+        element2 = tuple(data[i+1])
 
         """drawing lines for base. First 10 lines in CSV contains the
         coordinates that will create the base.
@@ -67,13 +67,15 @@ def solve(p1x, p1y, p2x, p2y, px, py, theta):
 def det(x1, y1, x2, y2):
     return float(x1)*float(y2)-float(x2)*float(y1)
 
-"""Finding length of a line from two points
+
+
+"""Returing the simplified form of coordinates
 """
-def length(px1, py1, px2, py2):
-    py = (py2 - py1) * (py2 - py1)
-    px = (px2 - px1) * (px2 - px1)
-    print 'length is ', math.sqrt(py + px)
-    return math.sqrt(py + px)
+def datum(x, y):
+    return float(data[x][y])
+
+
+
 
 #################### Calling Functions ####################
 
@@ -84,29 +86,47 @@ length(-1.05, 217.05, -0.8465, 216.609)
 
 theta = 180 - 63.43
 theta2 = 180 - theta
-print theta,theta2
-""" (a1, b1) are the coordinates of the intersection points obtained by
-solving the left side and similarly (a2, b2) are for the right side
-intersection.
-"""
-if theta >= 90.45 and theta <= 114.77 and theta2 <= 89.55 and theta2 >= 65.23:
-    a1, b1 = solve(-1.05, 217.05, -0.85, 217.05, -0.8465, 216.609, theta)
-    a2, b2 = solve(1.05, 217.05, 0.85, 217.05, 0.8465, 216.609, theta2)
-    print 'first case'
-elif theta > 114.77 and theta <= 167.29 and theta2 < 65.23 and theta2 >= 12.71:
-    a1, b1 = solve(-1.25, 216.7, -1.05, 217.05, -0.8465, 216.609, theta)
-    a2, b2 = solve(1.25, 216.7, 1.05, 217.05, 0.8465, 216.609, theta2)
-    print 'second case'
-elif theta > 167.29 and theta <= 180 and theta2 < 12.71 and theta2 >=0:
-    a1, b1 = solve(-1.45, 216.7, -1.25, 216.7, -0.8465, 216.609, theta)
-    a2, b2 = solve(1.45, 216.7, 1.25, 216.7, 0.8465, 216.609, theta2)
-    print 'third case'
-else:
-    print 'Invalid angle'
+print theta, theta2
 
+
+""" (final_x, final_y) are the coordinates of the intersection points
+obtained by solving the left side.
+"""
+intersectingL_x1, intersectingL_y1 = solve(datum(0,0), datum(0,1), datum(1,0), datum(1,1), datum(11,0), datum(11,1), theta)
+intersectingL_x2, intersectingL_y2 = solve(datum(1,0), datum(1,1), datum(2,0), datum(2,1), datum(11,0), datum(11,1), theta)
+intersectingL_x3, intersectingL_y3 = solve(datum(2,0), datum(2,1), datum(3,0), datum(3,1), datum(11,0), datum(11,1), theta)
+
+if intersectingL_x1 <= datum(1,0):
+    finalL_x = intersectingL_x1
+    finalL_y = intersectingL_y1
+
+elif intersectingL_x3 >= datum(2,0):
+    finalL_x = intersectingL_x3
+    finalL_y = intersectingL_y3
+
+else:
+    finalL_x = intersectingL_x2
+    finalL_y = intersectingL_y2
+
+intersectingR_x1, intersectingR_y1 = solve(datum(9,0), datum(9,1), datum(8,0), datum(8,1), datum(10,0), datum(10,1), theta2)
+intersectingR_x2, intersectingR_y2 = solve(datum(8,0), datum(8,1), datum(7,0), datum(7,1), datum(10,0), datum(10,1), theta2)
+intersectingR_x3, intersectingR_y3 = solve(datum(7,0), datum(7,1), datum(6,0), datum(6,1), datum(10,0), datum(10,1), theta2)
+
+if intersectingR_x1 >= datum(8,0):
+    finalR_x = intersectingR_x1
+    finalR_y = intersectingR_y1
+
+elif intersectingR_x3 <= datum(7,0):
+    finalR_x = intersectingR_x3
+    finalR_y = intersectingR_y3
+
+else:
+    finalR_x = intersectingR_x2
+    finalR_y = intersectingR_y2
 # Intersection points.
-intersect1 = tuple((a1, b1))
-intersect2 = tuple((a2, b2))
+intersectL = tuple((finalL_x, finalL_y))
+intersectR = tuple((finalR_x, finalR_y))
+
 
 """ Creates cutting plane
 """
@@ -119,15 +139,17 @@ for i in range(len(data)-1):
         drawing.add(dxf.line(elem1, elem2, color=7))
 
     #Drawing lines using the intersection points.
-    drawing.add(dxf.line(tuple(data[-1]),(a1, b1),color=7))
-    drawing.add(dxf.line(tuple(data[-2]),(a2, b2),color=7))
+#    drawing.add(dxf.line(tuple(data[-1]),(a1, b1),color=7))
+#    drawing.add(dxf.line(tuple(data[-2]),(a2, b2),color=7))
 
 # Appending every point needed to a list for the sake of finding area.
+
+                ##### needs modification #####
 points=points[1:]
-points.append(intersect2)
+#points.append(intersect2)
 points.append(elem1)
 points.append(elem2)
-points.append(intersect1)
+#points.append(intersect1)
 points.append(points[0])
 
 #pdb.set_trace() #for debugging (tracing)
@@ -136,6 +158,7 @@ points.append(points[0])
 for i in range(0, len(points)-1):
     area += det(points[i][0], points[i][1],
                 points[i+1][0], points[i+1][1])
+#area = area + det(points[len(points)][0], points[len(points)][1],points[0][0],points[0][1])
 if area < 0:
     area = -(area / 2)
 else:
@@ -145,6 +168,9 @@ print 'Area is: ', area
 drawing.add_layer('TEXTLAYER', color=2)
 drawing.add(dxf.text('Mandeep', insert=(0, 0.2), layer='TEXTLAYER'))
 
+#alpha = math.tan((180 - 90 - theta) * (math.pi) / 180)
+#pdb.set_trace()
+#t1, t2 = solve(-1.25, 216.7, -1.05, 217.05, -0.8465, 216.609, alpha)
 
 ########## Placing Block Now ##########
 
