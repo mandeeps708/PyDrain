@@ -39,7 +39,7 @@ def drawconti(data):
             drawing.add(dxf.line(element1, element2, color=7))
             points.append(element1)
         else:
-            print i
+            points.append(element1)
 
 
 """ Solving two equations simultaneously. Here (p1x, p1y) and (p2x, p2y)
@@ -82,12 +82,10 @@ def datum(x, y):
 drawconti(data)
 
 #pdb.set_trace() #for debugging (tracing)
-length(-1.05, 217.05, -0.8465, 216.609)
 
 theta = 180 - 63.43
 theta2 = 180 - theta
-print theta, theta2
-
+points = points[:-1]
 
 """ (final_x, final_y) are the coordinates of the intersection points
 obtained by solving the left side.
@@ -99,14 +97,20 @@ intersectingL_x3, intersectingL_y3 = solve(datum(2,0), datum(2,1), datum(3,0), d
 if intersectingL_x1 <= datum(1,0):
     finalL_x = intersectingL_x1
     finalL_y = intersectingL_y1
+    coordinate = tuple((str(finalL_x), str(finalL_y)))
+    points.insert(1, coordinate)
 
 elif intersectingL_x3 >= datum(2,0):
     finalL_x = intersectingL_x3
     finalL_y = intersectingL_y3
+    coordinate = tuple((str(finalL_x), str(finalL_y)))
+    points.insert(3, coordinate)
 
 else:
     finalL_x = intersectingL_x2
     finalL_y = intersectingL_y2
+    coordinate = tuple((str(finalL_x), str(finalL_y)))
+    points.insert(2, coordinate)
 
 intersectingR_x1, intersectingR_y1 = solve(datum(9,0), datum(9,1), datum(8,0), datum(8,1), datum(10,0), datum(10,1), theta2)
 intersectingR_x2, intersectingR_y2 = solve(datum(8,0), datum(8,1), datum(7,0), datum(7,1), datum(10,0), datum(10,1), theta2)
@@ -115,14 +119,22 @@ intersectingR_x3, intersectingR_y3 = solve(datum(7,0), datum(7,1), datum(6,0), d
 if intersectingR_x1 >= datum(8,0):
     finalR_x = intersectingR_x1
     finalR_y = intersectingR_y1
+    coordinate = tuple((str(finalR_x), str(finalR_y)))
+    index = points.index((str(datum(8,0)), str(datum(8,1))))
+    points.insert(index, coordinate)
 
 elif intersectingR_x3 <= datum(7,0):
     finalR_x = intersectingR_x3
     finalR_y = intersectingR_y3
+    coordinate = tuple((str(finalR_x), str(finalR_y)))
+    index = points.index((str(datum(7,0)), str(datum(7,1))))
+    points.insert(index, coordinate)
 
 else:
     finalR_x = intersectingR_x2
     finalR_y = intersectingR_y2
+    coordinate = tuple((str(finalR_x), str(finalR_y)))
+    points.insert(9, coordinate)
 # Intersection points.
 intersectL = tuple((finalL_x, finalL_y))
 intersectR = tuple((finalR_x, finalR_y))
@@ -130,13 +142,14 @@ intersectR = tuple((finalR_x, finalR_y))
 
 """ Creates cutting plane
 """
-for i in range(len(data)-1):
-    #elem1 and elem2 are the base points known of the cutting plane.
-    elem1 = tuple(data[i])
-    elem2 = tuple(data[i+1])
-    if i>=10:
-        #creating the base line of cutting plane.
-        drawing.add(dxf.line(elem1, elem2, color=7))
+#for i in range(10,11):
+#elem1 and elem2 are the base points known of the cutting plane.
+
+elem1 = tuple(data[10])
+elem2 = tuple(data[11])
+drawing.add(dxf.line(elem1, elem2, color=7))
+drawing.add(dxf.line(intersectL, elem2, color=7))
+drawing.add(dxf.line(elem1, intersectR, color=7))
 
     #Drawing lines using the intersection points.
 #    drawing.add(dxf.line(tuple(data[-1]),(a1, b1),color=7))
@@ -144,13 +157,6 @@ for i in range(len(data)-1):
 
 # Appending every point needed to a list for the sake of finding area.
 
-                ##### needs modification #####
-points=points[1:]
-#points.append(intersect2)
-points.append(elem1)
-points.append(elem2)
-#points.append(intersect1)
-points.append(points[0])
 
 #pdb.set_trace() #for debugging (tracing)
 
