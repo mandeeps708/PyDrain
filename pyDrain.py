@@ -97,20 +97,20 @@ intersectingL_x3, intersectingL_y3 = solve(datum(2,0), datum(2,1), datum(3,0), d
 if intersectingL_x1 <= datum(1,0):
     finalL_x = intersectingL_x1
     finalL_y = intersectingL_y1
-    coordinate = tuple((str(finalL_x), str(finalL_y)))
-    points.insert(1, coordinate)
+    coordinateL = tuple((str(finalL_x), str(finalL_y)))
+    points.insert(1, coordinateL)
 
 elif intersectingL_x3 >= datum(2,0):
     finalL_x = intersectingL_x3
     finalL_y = intersectingL_y3
-    coordinate = tuple((str(finalL_x), str(finalL_y)))
-    points.insert(3, coordinate)
+    coordinateL = tuple((str(finalL_x), str(finalL_y)))
+    points.insert(3, coordinateL)
 
 else:
     finalL_x = intersectingL_x2
     finalL_y = intersectingL_y2
-    coordinate = tuple((str(finalL_x), str(finalL_y)))
-    points.insert(2, coordinate)
+    coordinateL = tuple((str(finalL_x), str(finalL_y)))
+    points.insert(2, coordinateL)
 
 intersectingR_x1, intersectingR_y1 = solve(datum(9,0), datum(9,1), datum(8,0), datum(8,1), datum(10,0), datum(10,1), theta2)
 intersectingR_x2, intersectingR_y2 = solve(datum(8,0), datum(8,1), datum(7,0), datum(7,1), datum(10,0), datum(10,1), theta2)
@@ -119,26 +119,30 @@ intersectingR_x3, intersectingR_y3 = solve(datum(7,0), datum(7,1), datum(6,0), d
 if intersectingR_x1 >= datum(8,0):
     finalR_x = intersectingR_x1
     finalR_y = intersectingR_y1
-    coordinate = tuple((str(finalR_x), str(finalR_y)))
+    coordinateR = tuple((str(finalR_x), str(finalR_y)))
     index = points.index((str(datum(8,0)), str(datum(8,1))))
-    points.insert(index, coordinate)
+    points.insert(index, coordinateR)
 
 elif intersectingR_x3 <= datum(7,0):
     finalR_x = intersectingR_x3
     finalR_y = intersectingR_y3
-    coordinate = tuple((str(finalR_x), str(finalR_y)))
+    coordinateR = tuple((str(finalR_x), str(finalR_y)))
     index = points.index((str(datum(7,0)), str(datum(7,1))))
-    points.insert(index, coordinate)
+    points.insert(index, coordinateR)
 
 else:
     finalR_x = intersectingR_x2
     finalR_y = intersectingR_y2
-    coordinate = tuple((str(finalR_x), str(finalR_y)))
-    points.insert(9, coordinate)
+    coordinateR = tuple((str(finalR_x), str(finalR_y)))
+    points.insert(9, coordinateR)
 # Intersection points.
 intersectL = tuple((finalL_x, finalL_y))
 intersectR = tuple((finalR_x, finalR_y))
 
+indexL = points.index(coordinateL)
+indexR = points.index(coordinateR)
+
+points = points[indexL:indexR+1]
 
 """ Creates cutting plane
 """
@@ -151,19 +155,14 @@ drawing.add(dxf.line(elem1, elem2, color=7))
 drawing.add(dxf.line(intersectL, elem2, color=7))
 drawing.add(dxf.line(elem1, intersectR, color=7))
 
-    #Drawing lines using the intersection points.
-#    drawing.add(dxf.line(tuple(data[-1]),(a1, b1),color=7))
-#    drawing.add(dxf.line(tuple(data[-2]),(a2, b2),color=7))
+points.extend((elem1, elem2, coordinateL))
 
-# Appending every point needed to a list for the sake of finding area.
-
-
-#pdb.set_trace() #for debugging (tracing)
+pdb.set_trace() #for debugging (tracing)
 
 # Calculating Area Here.
 for i in range(0, len(points)-1):
-    area += det(points[i][0], points[i][1],
-                points[i+1][0], points[i+1][1])
+    area += det(points[i][0], points[i][1], points[i+1][0], points[i+1][1])
+    print area
 #area = area + det(points[len(points)][0], points[len(points)][1],points[0][0],points[0][1])
 if area < 0:
     area = -(area / 2)
