@@ -160,15 +160,22 @@ points.extend((elem1, elem2, coordinateL))
 pdb.set_trace() #for debugging (tracing)
 
 # Calculating Area Here.
-for i in range(0, len(points)-1):
-    area += det(points[i][0], points[i][1], points[i+1][0], points[i+1][1])
-    print area
-#area = area + det(points[len(points)][0], points[len(points)][1],points[0][0],points[0][1])
-if area < 0:
-    area = -(area / 2)
+if float(elem2[1]) < float(points[3][1]):
+    for i in range(0, len(points)-1):
+        area += det(points[i][0], points[i][1], points[i+1][0], points[i+1][1])
+        print area
+        #area = area + det(points[len(points)][0], points[len(points)][1],points[0][0],points[0][1])
+    if area < 0:
+        area = -(area / 2)
+    else:
+        area = area / 2
+    print 'Area is: ', area
+
 else:
-    area = area / 2
-print 'Area is: ', area
+    print 'cut plane is above the drain base'
+    # not yet implemented.
+    # adding areas of left and right blocks that are created. First we
+    # have to find out the intersection point.
 
 drawing.add_layer('TEXTLAYER', color=2)
 drawing.add(dxf.text('Mandeep', insert=(0, 0.2), layer='TEXTLAYER'))
