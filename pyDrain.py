@@ -13,8 +13,13 @@ filename =raw_input('Enter a new name for the file:')
 drawing = dxf.drawing(filename+'.dxf')
 
 #CSV file input.
-csvfile=raw_input('Enter the name of CSV file (without extension):')
-f = open(csvfile+'.csv')
+try:
+    csvfile=raw_input('Enter the name of CSV file (without extension):')
+    f = open(csvfile+'.csv')
+except NameError and IOError:
+    print '\n ##### Check file name! File', csvfile,'.csv not found#####\n'
+    exit()
+
 
 
 # Adding csv lines to list data.
@@ -173,6 +178,23 @@ if float(elem2[1]) < float(points[3][1]):
 
 else:
     print 'cut plane is above the drain base'
+    intersect_cut_xL, intersect_cut_yL = solve(datum(3,0), datum(3,1), datum(4,0), datum(4,1), datum(-1,0), datum(-1,1), 0)
+    intersect_cut_xR, intersect_cut_yR = solve(datum(5,0), datum(5,1), datum(6,0), datum(6,1), datum(-1,0), datum(-1,1), 0)
+    coordinateL = tuple((str(intersect_cut_xL), str(intersect_cut_yL)))
+    coordinateR = tuple((str(intersect_cut_xR), str(intersect_cut_yR)))
+
+    coordListL = points[:3]
+    coordListL.append(coordinateL)
+    coordListL.append(points[-2])
+    coordListL.append(coordListL[0])
+    cutting = 0
+
+    for i in range(0, len(coordListL)-1):
+        cutting += det(coordListL[i][0], coordListL[i][1], coordListL[i+1][0], coordListL[i+1][1])
+        print cutting
+
+print 'cutting is: ',(cutting/2)
+    #intersect_index = points.index((str(datum(8,0)), str(datum(8,1))))
     # not yet implemented.
     # adding areas of left and right blocks that are created. First we
     # have to find out the intersection point.
