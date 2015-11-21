@@ -80,6 +80,16 @@ def datum(x, y):
     return float(data[x][y])
 
 
+"""Checking if the value of determinant is negative or not. If it's
+negative then it's made positive and finally the value is divided by 2,
+as per the forumula of area.
+"""
+def areaNegative(area):
+    if area < 0:
+        area = -(area / 2)
+    else:
+        area = area / 2
+    return area
 
 
 #################### Calling Functions ####################
@@ -162,19 +172,14 @@ drawing.add(dxf.line(elem1, intersectR, color=7))
 
 points.extend((elem1, elem2, coordinateL))
 
-pdb.set_trace() #for debugging (tracing)
+#pdb.set_trace() #for debugging (tracing)
 
 # Calculating Area Here.
 if float(elem2[1]) < float(points[3][1]):
     for i in range(0, len(points)-1):
         area += det(points[i][0], points[i][1], points[i+1][0], points[i+1][1])
-        print area
-        #area = area + det(points[len(points)][0], points[len(points)][1],points[0][0],points[0][1])
-    if area < 0:
-        area = -(area / 2)
-    else:
-        area = area / 2
-    print 'Area is: ', area
+
+    print 'Total Cutting Area is: ', areaNegative(area)
 
 else:
     print 'cut plane is above the drain base'
@@ -187,13 +192,22 @@ else:
     coordListL.append(coordinateL)
     coordListL.append(points[-2])
     coordListL.append(coordListL[0])
-    cutting = 0
+    cuttingL = 0
+    cuttingR = 0
 
+    coordListR = [ coordinateR ]
+    coordListR += points[5:9]
+    coordListR.append(coordListR[0])
     for i in range(0, len(coordListL)-1):
-        cutting += det(coordListL[i][0], coordListL[i][1], coordListL[i+1][0], coordListL[i+1][1])
-        print cutting
+        cuttingL += det(coordListL[i][0], coordListL[i][1], coordListL[i+1][0], coordListL[i+1][1])
+    for i in range(0, len(coordListR)-1):
+        cuttingR += det(coordListR[i][0], coordListR[i][1], coordListR[i+1][0], coordListR[i+1][1])
+    left_cutting = areaNegative(cuttingL)
+    right_cutting = areaNegative(cuttingR)
 
-print 'cutting is: ',(cutting/2)
+    total_cutting = left_cutting + right_cutting
+
+    print 'Total Cutting Area is: ', total_cutting
     #intersect_index = points.index((str(datum(8,0)), str(datum(8,1))))
     # not yet implemented.
     # adding areas of left and right blocks that are created. First we
