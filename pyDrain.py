@@ -207,7 +207,15 @@ else:
 
     total_cutting = left_cutting + right_cutting
 
+    fillingList = [coordinateL, coordinateR, (str(datum(5,0)), str(datum(5,1))), (str(datum(4,0)), str(datum(4,1)))]
+    fillingList.append(coordinateL)
+    fillingArea = 0
+
+    for i in range(0, len(fillingList)-1):
+        fillingArea += det(fillingList[i][0], fillingList[i][1], fillingList[i+1][0], fillingList[i+1][1])
+    fillingArea = areaNegative(fillingArea)
     print 'Total Cutting Area is: ', total_cutting
+    print 'Total filling Area is: ', fillingArea
     #intersect_index = points.index((str(datum(8,0)), str(datum(8,1))))
     # not yet implemented.
     # adding areas of left and right blocks that are created. First we
