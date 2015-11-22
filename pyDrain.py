@@ -41,9 +41,9 @@ def drawconti(data):
         coordinates that will create the base.
         """
         if i < 9:
-            drawing.add(dxf.line(element1, element2, color=7))
+            drawing.add(dxf.line(element1, element2, color=7, layer='Base'))
             points.append(element1)
-        else:
+        elif i < 11:
             points.append(element1)
 
 
@@ -94,11 +94,12 @@ def areaNegative(area):
 
 #################### Calling Functions ####################
 
+drawing.add_layer('Base', color=2)
 drawconti(data)
 
 #pdb.set_trace() #for debugging (tracing)
 
-theta = 180 - 63.43
+theta = 180 - datum(12,0)
 theta2 = 180 - theta
 points = points[:-1]
 
@@ -163,12 +164,13 @@ points = points[indexL:indexR+1]
 """
 #for i in range(10,11):
 #elem1 and elem2 are the base points known of the cutting plane.
+drawing.add_layer('workingSpace', color=7)
 
 elem1 = tuple(data[10])
 elem2 = tuple(data[11])
-drawing.add(dxf.line(elem1, elem2, color=7))
-drawing.add(dxf.line(intersectL, elem2, color=7))
-drawing.add(dxf.line(elem1, intersectR, color=7))
+drawing.add(dxf.line(elem1, elem2, color=7, layer='workingSpace'))
+drawing.add(dxf.line(intersectL, elem2, color=7, layer='workingSpace'))
+drawing.add(dxf.line(elem1, intersectR, color=7, layer='workingSpace'))
 
 points.extend((elem1, elem2, coordinateL))
 
@@ -183,8 +185,8 @@ if float(elem2[1]) < float(points[3][1]):
 
 else:
     print 'cut plane is above the drain base'
-    intersect_cut_xL, intersect_cut_yL = solve(datum(3,0), datum(3,1), datum(4,0), datum(4,1), datum(-1,0), datum(-1,1), 0)
-    intersect_cut_xR, intersect_cut_yR = solve(datum(5,0), datum(5,1), datum(6,0), datum(6,1), datum(-1,0), datum(-1,1), 0)
+    intersect_cut_xL, intersect_cut_yL = solve(datum(3,0), datum(3,1), datum(4,0), datum(4,1), datum(11,0), datum(11,1), 0)
+    intersect_cut_xR, intersect_cut_yR = solve(datum(5,0), datum(5,1), datum(6,0), datum(6,1), datum(11,0), datum(11,1), 0)
     coordinateL = tuple((str(intersect_cut_xL), str(intersect_cut_yL)))
     coordinateR = tuple((str(intersect_cut_xR), str(intersect_cut_yR)))
 
