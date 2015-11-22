@@ -1,21 +1,24 @@
 # PyDrain
+Creating drawing of Drain using coordinates from CSV file. Calculates the cutting and filling area. 
 
-# Pre-requisite
+Pre-requisite
+-------------
 
 - dxfwrite:
 
-`pip install dxfwrite`
+    `pip install dxfwrite`
 
-# Execution:
+Execution:
+----------
 
 - Clone repo:
 
-`git clone https://github.com/mandeeps708/PyDrain`
+    `git clone https://github.com/mandeeps708/PyDrain`
 
 - Execute:
 
-`cd PyDrain`
+    `cd PyDrain`
 
-`python pyDrain.py`
+    `python pyDrain.py`
 
 Then open the dxf file created in the current directory with some CAD software.
