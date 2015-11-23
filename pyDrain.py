@@ -227,36 +227,31 @@ drawing.add_layer('TEXTLAYER', color=2)
 drawing.add(dxf.text('Mandeep', insert=(0, 0.2), layer='TEXTLAYER'))
 
 #alpha = math.tan((180 - 90 - theta) * (math.pi) / 180)
-#pdb.set_trace()
+pdb.set_trace()
 #t1, t2 = solve(-1.25, 216.7, -1.05, 217.05, -0.8465, 216.609, alpha)
 
+drawing.add_layer('Block', color=4)
 ########## Placing Block Now ##########
 
-#   horizontal = 1.5
-#   blockhlx = -horizontal/2
-#   blockhrx = horizontal/2
-#   blockhy= float(elem1[1])+0.0001
+block_length = 1.5
+block_lx = -block_length / 2
+block_rx = block_length / 2
+block_y= float(elem1[1])
 
-#   drawing.add(dxf.line((blockhlx, blockhy), (blockhrx, blockhy), color=7))
+drawing.add(dxf.line((block_lx, block_y), (block_rx, block_y), color=7))
 
-#   vertical = 0.50,216.7
-#   blockvlx = -vertical[0]
-#   blockvrx = vertical[0]
-#   blockvy = vertical[1]
+block_height = 216.7
+horizontal_depth = 0.1
+vertical_depth = 0.4
+inner_lx = block_lx + horizontal_depth
+inner_rx = block_rx - horizontal_depth
+inner_height = block_y + vertical_depth
 
-#   drawing.add(dxf.line((blockhlx, blockvy), (blockhlx, blockhy), color=7))
-#   drawing.add(dxf.line((blockhrx, blockvy), (blockhrx, blockhy), color=7))
+#blockList = [(block_lx, block_y), (block_rx, block_y), (block_rx, block_height), (inner_rx , block_height), (inner_rx, inner_height),  (inner_lx, inner_height), (inner_lx, block_height), (block_lx, block_height), (block_lx, block_y)]
+blockList = [(block_lx, block_y), (block_rx, block_y), (block_rx, inner_height), (inner_rx , inner_height), (inner_rx, block_height),  (inner_lx, block_height), (inner_lx, inner_height), (block_lx, inner_height), (block_lx, block_y)]
 
-#   innerver = 0.45, 215.7
-#   iblockvlx = -innerver[0]
-#   iblockvrx = [0]
-#   iblockvy = vertical[1]
+drawing.add(dxf.polyline(blockList))
 
-#drawing.add(dxf.line((iblockvlx, iblockvy), (iblockvlx, blockvy), color=7))
-
-#block = [['0.50', '216.7'], ['0.45','216.7'], ['0.45', '216'], ['-0.45', '216'], ['-0.45', '216.7'], ['-0.50', '216.7'], ['-0.50', '215.8001'],['0.50','215.8001'],['0.50', '216.7']]
-
-#drawconti(block)
 
 
 # Saving file now.
