@@ -42,7 +42,7 @@ def drawconti(data):
         coordinates that will create the base.
         """
         if i < 9:
-            drawing.add(dxf.line(element1, element2, color=7, layer='Base'))
+            drawing.add(dxf.line(element1, element2, color=50, layer='Base'))
             points.append(element1)
         elif i < 11:
             points.append(element1)
@@ -252,8 +252,6 @@ else:
     # adding areas of left and right blocks that are created. First we
     # have to find out the intersection point.
 
-drawing.add_layer('TEXTLAYER', color=2)
-drawing.add(dxf.text('Mandeep', insert=(0, 0.2), layer='TEXTLAYER'))
 
 # alpha = math.tan((180 - 90 - theta) * (math.pi) / 180)
 pdb.set_trace()
@@ -267,7 +265,7 @@ block_lx = -block_length / 2
 block_rx = block_length / 2
 block_y = float(elem1[1])
 
-drawing.add(dxf.line((block_lx, block_y), (block_rx, block_y), color=7))
+drawing.add(dxf.line((block_lx, block_y), (block_rx, block_y), color=75))
 
 block_height = 216.7
 horizontal_depth = 0.1
@@ -289,15 +287,21 @@ blockList = [(block_lx, block_y), (block_rx, block_y),
              (inner_lx, inner_height), (block_lx, inner_height),
              (block_lx, block_y)]
 
-drawing.add(dxf.polyline(blockList))
+drawing.add(dxf.polyline(blockList, color=75))
 
-# Filling after placing block.
+# Covering area after placing block.
 
 margin1 = 0.3050
 margin2 = 0.3190
-blockFill_l = (blockList[-2][0] - 0.3050, blockList[-2][1])
+blockFill_lf = (blockList[-2][0] - margin1, blockList[-2][1])
+blockFill_ll = (blockList[-2][0] - margin1 - margin2, datum(0, 1))
+blockFill_rf = (blockList[2][0] + margin1, blockList[2][1])
+blockFill_rl = (blockList[2][0] + margin1 + margin2, datum(0, 1))
 
-# drawing.add(dxf.line(blockList[-2])
+drawing.add(dxf.line(blockList[-2], blockFill_lf, color=100))
+drawing.add(dxf.line(blockFill_lf, blockFill_ll, color=100))
+drawing.add(dxf.line(blockList[2], blockFill_rf, color=100))
+drawing.add(dxf.line(blockFill_rf, blockFill_rl, color=100))
 
 # Saving file now.
 drawing.save()
