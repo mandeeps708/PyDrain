@@ -7,6 +7,8 @@ import pdb
 points = []
 data = []
 area = 0
+blockList = []
+inner_height = 0
 
 # Getting filename with which the file is to be saved.
 filename = raw_input('Enter a new name for the file:')
@@ -104,13 +106,13 @@ def areaNegative(area):
 drawing.add_layer('Base', color=2)
 drawconti(data)
 
-# pdb.set_trace() #for debugging (tracing)
+# pdb.set_trace()  # for debugging (tracing)
 
 theta = 180 - datum(12, 0)
 theta2 = 180 - theta
 points = points[:-1]
 
-""" (final_x, final_y) are the coordinates of the intersection points
+""" (finalL_x, finalL_y) are the coordinates of the intersection points
 obtained by solving the left side.
 """
 intersectingL_x1, intersectingL_y1 = solve(datum(0, 0), datum(0, 1),
@@ -141,6 +143,10 @@ else:
     coordinateL = tuple((str(finalL_x), str(finalL_y)))
     points.insert(2, coordinateL)
 
+
+""" (finalR_x, finalR_y) are the coordinates of the intersection points
+obtained by solving the right side.
+"""
 intersectingR_x1, intersectingR_y1 = solve(datum(9, 0), datum(9, 1),
                                            datum(8, 0), datum(8, 1),
                                            datum(10, 0), datum(10, 1), theta2)
@@ -197,6 +203,7 @@ points.extend((elem1, elem2, coordinateL))
 
 # Calculating Area Here.
 if float(elem2[1]) < float(points[3][1]):
+    print 'cut plane is below the drain base'
     for i in range(0, len(points)-1):
         area += det(points[i][0], points[i][1], points[i+1][0], points[i+1][1])
 
@@ -254,42 +261,47 @@ else:
 
 
 # alpha = math.tan((180 - 90 - theta) * (math.pi) / 180)
-pdb.set_trace()
+# pdb.set_trace()
 # t1, t2 = solve(-1.25, 216.7, -1.05, 217.05, -0.8465, 216.609, alpha)
 
 drawing.add_layer('Block', color=4)
 # ######### Placing Block Now ##########
 
-block_length = 1.5
-block_lx = -block_length / 2
-block_rx = block_length / 2
-block_y = float(elem1[1])
 
-drawing.add(dxf.line((block_lx, block_y), (block_rx, block_y), color=75))
+def block(length, height, inner_height, inner_width):
+    block_lx = -length / 2
+    block_rx = length / 2
+    block_y = float(elem1[1])
+    vertical_depth = (length - inner_width) / 2
 
-block_height = 216.7
-horizontal_depth = 0.1
-vertical_depth = 0.4
-inner_lx = block_lx + horizontal_depth
-inner_rx = block_rx - horizontal_depth
-inner_height = block_y + vertical_depth
+    drawing.add(dxf.line((block_lx, block_y), (block_rx, block_y), color=75))
 
-"""
-blockList = [(block_lx, block_y), (block_rx, block_y),
-                (block_rx, block_height), (inner_rx , block_height),
-                (inner_rx, inner_height),  (inner_lx, inner_height),
-                (inner_lx, block_height), (block_lx, block_height),
-                (block_lx, block_y)]
-"""
-blockList = [(block_lx, block_y), (block_rx, block_y),
-             (block_rx, inner_height), (inner_rx, inner_height),
-             (inner_rx, block_height),  (inner_lx, block_height),
-             (inner_lx, inner_height), (block_lx, inner_height),
-             (block_lx, block_y)]
+    block_height = block_y + height
+    horizontal_depth = height - inner_height
+    inner_lx = block_lx + vertical_depth
+    inner_rx = block_rx - vertical_depth
+    inner_y = block_y + horizontal_depth
 
-drawing.add(dxf.polyline(blockList, color=75))
+    """
+    blockList = [(block_lx, block_y), (block_rx, block_y),
+                    (block_rx, block_height), (inner_rx , block_height),
+                    (inner_rx, inner_height),  (inner_lx, inner_height),
+                    (inner_lx, block_height), (block_lx, block_height),
+                    (block_lx, block_y)]
+    """
+    blockList = [(block_lx, block_y), (block_rx, block_y),
+                 (block_rx, block_height), (inner_rx, block_height),
+                 (inner_rx, inner_y),  (inner_lx, inner_y),
+                 (inner_lx, block_height), (block_lx, block_height),
+                 (block_lx, block_y)]
+
+    drawing.add(dxf.polyline(blockList, color=75))
+    return blockList
+
 
 # Covering area after placing block.
+blockList = block(1.3930, 0.4100, 0.3340, 0.9350)
+
 
 margin1 = 0.3050
 margin2 = 0.3190
@@ -302,6 +314,17 @@ drawing.add(dxf.line(blockList[-2], blockFill_lf, color=100))
 drawing.add(dxf.line(blockFill_lf, blockFill_ll, color=100))
 drawing.add(dxf.line(blockList[2], blockFill_rf, color=100))
 drawing.add(dxf.line(blockFill_rf, blockFill_rl, color=100))
+
+if finalL_y < inner_height:
+    print 'Everything will fill normally!'
+
+else:
+    print 'Will have to calculate cutting and filling differently!'
+final_cuttingL = 0
+final_cutting = [blockFill_ll]
+for i in range(0, len(final_cutting)-1):
+    final_cuttingL += det(final_cutting[i][0], final_cutting[i][1],
+                          final_cutting[i+1][0], final_cutting[i+1][1])
 
 # Saving file now.
 drawing.save()
