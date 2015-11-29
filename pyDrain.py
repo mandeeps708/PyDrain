@@ -101,6 +101,48 @@ def areaNegative(area):
     return area
 
 
+"""
+The block function takes four inputs and returns blockList. Four inputs are
+length of block, height of block, inner height of block and inner length of
+base.
+                 ^           --             --      ^
+                 |           | |           | |      |
+                 |           | |           | |      |
+                 |           | |___________| |      |
+                 |           |_______________|    inner_height
+                height
+                               <---------->
+                               inner_width
+
+                             <----length----->
+
+"""
+
+
+def block(length, height, inner_height, inner_width):
+    block_lx = -length / 2
+    block_rx = length / 2
+    block_y = float(elem1[1])
+    vertical_depth = (length - inner_width) / 2
+
+    drawing.add(dxf.line((block_lx, block_y), (block_rx, block_y), color=75))
+
+    block_height = block_y + height
+    horizontal_depth = height - inner_height
+    inner_lx = block_lx + vertical_depth
+    inner_rx = block_rx - vertical_depth
+    inner_y = block_y + horizontal_depth
+
+    blockList = [(block_lx, block_y), (block_rx, block_y),
+                 (block_rx, block_height), (inner_rx, block_height),
+                 (inner_rx, inner_y),  (inner_lx, inner_y),
+                 (inner_lx, block_height), (block_lx, block_height),
+                 (block_lx, block_y)]
+
+    drawing.add(dxf.polyline(blockList, color=75))
+    return blockList
+
+
 # ################## Calling Functions ####################
 
 drawing.add_layer('Base', color=2)
@@ -199,7 +241,7 @@ drawing.add(dxf.line(elem1, intersectR, color=7, layer='workingSpace'))
 
 points.extend((elem1, elem2, coordinateL))
 
-# pdb.set_trace() #for debugging (tracing)
+pdb.set_trace()  # for debugging (tracing)
 
 # Calculating Area Here.
 if float(elem2[1]) < float(points[3][1]):
@@ -260,48 +302,16 @@ else:
     # have to find out the intersection point.
 
 
-# alpha = math.tan((180 - 90 - theta) * (math.pi) / 180)
-# pdb.set_trace()
-# t1, t2 = solve(-1.25, 216.7, -1.05, 217.05, -0.8465, 216.609, alpha)
-
 drawing.add_layer('Block', color=4)
 # ######### Placing Block Now ##########
 
-
-def block(length, height, inner_height, inner_width):
-    block_lx = -length / 2
-    block_rx = length / 2
-    block_y = float(elem1[1])
-    vertical_depth = (length - inner_width) / 2
-
-    drawing.add(dxf.line((block_lx, block_y), (block_rx, block_y), color=75))
-
-    block_height = block_y + height
-    horizontal_depth = height - inner_height
-    inner_lx = block_lx + vertical_depth
-    inner_rx = block_rx - vertical_depth
-    inner_y = block_y + horizontal_depth
-
-    """
-    blockList = [(block_lx, block_y), (block_rx, block_y),
-                    (block_rx, block_height), (inner_rx , block_height),
-                    (inner_rx, inner_height),  (inner_lx, inner_height),
-                    (inner_lx, block_height), (block_lx, block_height),
-                    (block_lx, block_y)]
-    """
-    blockList = [(block_lx, block_y), (block_rx, block_y),
-                 (block_rx, block_height), (inner_rx, block_height),
-                 (inner_rx, inner_y),  (inner_lx, inner_y),
-                 (inner_lx, block_height), (block_lx, block_height),
-                 (block_lx, block_y)]
-
-    drawing.add(dxf.polyline(blockList, color=75))
-    return blockList
-
+length = 1.3930
+height = 0.4100
+inner_height = 0.3340
+inner_width = 0.9350
+blockList = block(length, height, inner_height, inner_width)
 
 # Covering area after placing block.
-blockList = block(1.3930, 0.4100, 0.3340, 0.9350)
-
 
 margin1 = 0.3050
 margin2 = 0.3190
@@ -314,12 +324,20 @@ drawing.add(dxf.line(blockList[-2], blockFill_lf, color=100))
 drawing.add(dxf.line(blockFill_lf, blockFill_ll, color=100))
 drawing.add(dxf.line(blockList[2], blockFill_rf, color=100))
 drawing.add(dxf.line(blockFill_rf, blockFill_rl, color=100))
+pdb.set_trace()
 
-if finalL_y < inner_height:
+lFillIntersectx, lFillIntersecty = solve(datum(11, 0), datum(11, 1),
+                                         finalL_x, finalL_y,
+                                         blockFill_lf[0], blockFill_lf[1],
+                                         theta)
+if finalL_y < height:
     print 'Everything will fill normally!'
 
 else:
     print 'Will have to calculate cutting and filling differently!'
+    if blockFill_lf[0] > lFillIntersectx:
+        print 'complex case'
+        # AreaFillingL = det()
 final_cuttingL = 0
 final_cutting = [blockFill_ll]
 for i in range(0, len(final_cutting)-1):
