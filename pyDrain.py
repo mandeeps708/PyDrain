@@ -87,6 +87,22 @@ def datum(x, y):
     return float(data[x][y])
 
 
+"""
+Calculates the pre-area values that are fed to the areaNegative() function
+below. It takes one argument as input:
+    pList: List containing the coordinates of the boundary of which the
+           area is to be calculated.
+"""
+
+
+def preArea(pList):
+    pArea = 0
+    for i in range(0, len(pList)-1):
+        pArea += det(pList[i][0], pList[i][1],
+                     pList[i+1][0], pList[i+1][1])
+    return pArea
+
+
 """Checking if the value of determinant is negative or not. If it's
 negative then it's made positive and finally the value is divided by 2,
 as per the forumula of area.
@@ -341,17 +357,54 @@ lFillIntersectx, lFillIntersecty = solve(blockFill_lf[0], blockFill_lf[1],
                                          blockFill_ll[0], blockFill_ll[1],
                                          datum(11, 0), datum(11, 1),
                                          theta)
+lFillIntersect = tuple((lFillIntersectx, lFillIntersecty))
 
-# Intersection of drain base with the block extension line.
-extensionIntersectx, extensionIntersecty = solve(datum(3, 0), datum(3, 1),
-                                                 datum(4, 0), datum(4, 1),
-                                                 blockList[7][0],
-                                                 blockList[7][1], 0)
+# Angle between the slanted line of base with the x-axis.
+angleSlope = slope(datum(1, 0), datum(1, 1), datum(2, 0), datum(2, 1))
 
-# extensionIntersect2x, extensionIntersect2y = solve( )
+# Intersection of drain slanted line with the block extension line.
+extensionIntersectx, extensionIntersecty = solve(blockFill_lf[0],
+                                                 blockFill_lf[1],
+                                                 blockFill_ll[0],
+                                                 blockFill_ll[1],
+                                                 datum(1, 0), datum(1, 1),
+                                                 angleSlope)
+extensionIntersect = tuple((extensionIntersectx, extensionIntersecty))
+extraCuttingArea = 0
+extraFillingArea = 0
 
 # Different Cases for extra outer filling and cutting.
 
+"""
+Case I:
+    Checks if the block extension line cuts the leftover area.
+"""
+
+if extensionIntersecty < finalL_y:
+    extraCuttingCoord = [intersectL, extensionIntersect, lFillIntersect,
+                         intersectL]
+    extraFillingCoord = [extensionIntersect, (datum(1, 0), datum(1, 1)),
+                         blockFill_ll, extensionIntersect]
+
+    for i in range(0, len(extraCuttingCoord)-1):
+        extraCuttingArea += det(extraCuttingCoord[i][0],
+                                extraCuttingCoord[i][1],
+                                extraCuttingCoord[i+1][0],
+                                extraCuttingCoord[i+1][1])
+
+    for i in range(0, len(extraFillingCoord)-1):
+        extraFillingArea += det(extraFillingCoord[i][0],
+                                extraFillingCoord[i][1],
+                                extraFillingCoord[i+1][0],
+                                extraFillingCoord[i+1][1])
+    extraCuttingArea = areaNegative(extraCuttingArea)
+    extraFillingArea = areaNegative(extraFillingArea)
+
+    majorFillingCoord = [lFillIntersect, blockFill_lf, blockList[7],
+                         blockList[0], (datum(11, 0), datum(11, 1)),
+                         lFillIntersect]
+
+"""
 if finalL_y < blockList[2][1]:
 
     if finalL_x < lFillIntersectx:
@@ -379,9 +432,8 @@ final_cutting = [blockFill_ll]
 for i in range(0, len(final_cutting)-1):
     final_cuttingL += det(final_cutting[i][0], final_cutting[i][1],
                           final_cutting[i+1][0], final_cutting[i+1][1])
-
-
-print 'test angle:', slope(datum(1, 0), datum(1, 1), datum(2, 0), datum(2, 1))
+"""
+pdb.set_trace()
 # Saving file now.
 drawing.save()
 print "Check file " + filename + ".dxf in current directory."
