@@ -142,6 +142,16 @@ def block(length, height, inner_height, inner_width):
     drawing.add(dxf.polyline(blockList, color=75))
     return blockList
 
+"""
+Finding Slope of a line.
+"""
+
+
+def slope(x1, y1, x2, y2):
+    m = (y2 - y1) / (x2 - x1)
+    slopedTheta = math.degrees(math.atan(m))
+    return slopedTheta
+
 
 # ################## Calling Functions ####################
 
@@ -326,24 +336,52 @@ drawing.add(dxf.line(blockList[2], blockFill_rf, color=100))
 drawing.add(dxf.line(blockFill_rf, blockFill_rl, color=100))
 pdb.set_trace()
 
-lFillIntersectx, lFillIntersecty = solve(datum(11, 0), datum(11, 1),
-                                         finalL_x, finalL_y,
-                                         blockFill_lf[0], blockFill_lf[1],
+# Intersection point of extension filling line with the working space slanted.
+lFillIntersectx, lFillIntersecty = solve(blockFill_lf[0], blockFill_lf[1],
+                                         blockFill_ll[0], blockFill_ll[1],
+                                         datum(11, 0), datum(11, 1),
                                          theta)
-if finalL_y < height:
-    print 'Everything will fill normally!'
+
+# Intersection of drain base with the block extension line.
+extensionIntersectx, extensionIntersecty = solve(datum(3, 0), datum(3, 1),
+                                                 datum(4, 0), datum(4, 1),
+                                                 blockList[7][0],
+                                                 blockList[7][1], 0)
+
+# extensionIntersect2x, extensionIntersect2y = solve( )
+
+# Different Cases for extra outer filling and cutting.
+
+if finalL_y < blockList[2][1]:
+
+    if finalL_x < lFillIntersectx:
+        extraCuttingCoord = [(lFillIntersectx, lFillIntersecty),
+                             intersectL, (datum(2, 0), datum(2, 1)),
+                             (datum(3, 0), datum(3, 1)),
+                             (extensionIntersectx, extensionIntersecty),
+                             blockFill_lf]
+        extraCuttingCoord.append(extraCuttingCoord[0])
+
+        extraFillingCoord = [(datum(1, 0), datum(1, 1)), blockFill_ll]
+
+        print 'Everything will fill normally!'
 
 else:
     print 'Will have to calculate cutting and filling differently!'
-    if blockFill_lf[0] > lFillIntersectx:
-        print 'complex case'
-        # AreaFillingL = det()
+
+if blockFill_lf[0] > lFillIntersectx:
+    print 'case I'
+else:
+    print 'case II'
+    # AreaFillingL = det()
 final_cuttingL = 0
 final_cutting = [blockFill_ll]
 for i in range(0, len(final_cutting)-1):
     final_cuttingL += det(final_cutting[i][0], final_cutting[i][1],
                           final_cutting[i+1][0], final_cutting[i+1][1])
 
+
+print 'test angle:', slope(datum(1, 0), datum(1, 1), datum(2, 0), datum(2, 1))
 # Saving file now.
 drawing.save()
 print "Check file " + filename + ".dxf in current directory."
