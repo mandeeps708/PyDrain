@@ -10,6 +10,9 @@ area = 0
 blockList = []
 inner_height = 0
 
+extraCuttingArea = 0
+extraFillingArea = 0
+
 # Getting filename with which the file is to be saved.
 filename = raw_input('Enter a new name for the file:')
 drawing = dxf.drawing(filename+'.dxf')
@@ -314,11 +317,8 @@ else:
                                              (str(datum(4, 0)),
                                               str(datum(4, 1)))]
     fillingList.append(coordinateL)
-    fillingArea = 0
 
-    for i in range(0, len(fillingList)-1):
-        fillingArea += det(fillingList[i][0], fillingList[i][1],
-                           fillingList[i+1][0], fillingList[i+1][1])
+    fillingArea = preArea(fillingList)
     fillingArea = areaNegative(fillingArea)
     print 'Total Cutting Area is: ', total_cutting
     print 'Total filling Area is: ', fillingArea
@@ -370,8 +370,6 @@ extensionIntersectx, extensionIntersecty = solve(blockFill_lf[0],
                                                  datum(1, 0), datum(1, 1),
                                                  angleSlope)
 extensionIntersect = tuple((extensionIntersectx, extensionIntersecty))
-extraCuttingArea = 0
-extraFillingArea = 0
 
 # Different Cases for extra outer filling and cutting.
 
@@ -380,29 +378,36 @@ Case I:
     Checks if the block extension line cuts the leftover area.
 """
 
-if extensionIntersecty < finalL_y:
+if extensionIntersecty < finalL_y and extensionIntersecty > datum(1, 1):
     extraCuttingCoord = [intersectL, extensionIntersect, lFillIntersect,
                          intersectL]
     extraFillingCoord = [extensionIntersect, (datum(1, 0), datum(1, 1)),
                          blockFill_ll, extensionIntersect]
 
-    for i in range(0, len(extraCuttingCoord)-1):
-        extraCuttingArea += det(extraCuttingCoord[i][0],
-                                extraCuttingCoord[i][1],
-                                extraCuttingCoord[i+1][0],
-                                extraCuttingCoord[i+1][1])
-
-    for i in range(0, len(extraFillingCoord)-1):
-        extraFillingArea += det(extraFillingCoord[i][0],
-                                extraFillingCoord[i][1],
-                                extraFillingCoord[i+1][0],
-                                extraFillingCoord[i+1][1])
+    extraCuttingArea = preArea(extraCuttingCoord)
     extraCuttingArea = areaNegative(extraCuttingArea)
+
+    extraFillingArea = preArea(extraFillingCoord)
     extraFillingArea = areaNegative(extraFillingArea)
 
     majorFillingCoord = [lFillIntersect, blockFill_lf, blockList[7],
                          blockList[0], (datum(11, 0), datum(11, 1)),
                          lFillIntersect]
+    majorFillingArea = preArea(majorFillingCoord)
+    majorFillingArea = areaNegative(majorFillingArea)
+
+else:
+    majorFillingCoord = [blockFill_ll, blockFill_lf, blockList[7],
+                         blockList[0], (datum(11, 0), datum(11, 1)),
+                         intersectL, (datum(1, 0), datum(1, 1)), blockFill_ll]
+    majorFillingArea = preArea(majorFillingCoord)
+    majorFillingArea = areaNegative(majorFillingArea)
+
+print '################## Block placed! ###################'
+print 'Major Filling Area: ', majorFillingArea
+
+print 'Extra Cutting Area: ', extraCuttingArea
+print 'Extra Filling Area: ', extraFillingArea
 
 """
 if finalL_y < blockList[2][1]:
