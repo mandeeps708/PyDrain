@@ -24,7 +24,7 @@ try:
     csvfile = raw_input('Enter the name of CSV file (without extension):')
     f = open(csvfile+'.csv')
 except NameError and IOError:
-    print '\n ##### Check file name! File', csvfile, '.csv not found#####\n'
+    print '\n ##### Check file name! File ' + csvfile + '.csv not found#####\n'
     print 'Try entering (default): coord'
     exit()
 
@@ -220,7 +220,7 @@ intersectingL_x4, intersectingL_y4 = solve(datum(3, 0), datum(3, 1),
                                            datum(4, 0), datum(4, 1),
                                            datum(11, 0), datum(11, 1), theta)
 
-pdb.set_trace()
+# pdb.set_trace()
 
 """
 The following are the different cases to check to which line the working space
@@ -253,6 +253,7 @@ elif intersectingL_x4 >= datum(3, 0) and intersectingL_x4 <= datum(4, 0):
 
 else:
     print 'Not a valid case. Possible Error: Wrong angle.'
+    exit()
 
 """ (finalR_x, finalR_y) are the coordinates of the intersection points
 obtained by solving the right side.
@@ -325,7 +326,7 @@ _____________________/        \           \____________________/            /   
                              (__\_________________________________________/__)
 """
 
-pdb.set_trace()
+# pdb.set_trace()
 indexL = points.index(coordinateL)
 indexR = points.index(coordinateR)
 
@@ -356,93 +357,107 @@ drawing.add(dxf.line(elem1, intersectR, color=7, layer='workingSpace'))
 points.extend((elem1, elem2, coordinateL))
 
 
-pdb.set_trace()  # for debugging (tracing)
+# pdb.set_trace()  # for debugging (tracing)
 
-# Calculating Area Here.
 
-if float(elem2[1]) < float(points[3][1]):
-    print 'Cutting plane is below the drain base'
-    for i in range(0, len(points)-1):
-        area += det(points[i][0], points[i][1], points[i+1][0], points[i+1][1])
+# ####################### Calculating Area Here. #########################
 
-    print 'Total Base Cutting Area is: ', areaNegative(area)
-    """
+# if the working space base length is greater then the drain base length.
+if float(elem2[0]) < datum(4, 0) and float(elem1[0]) > datum(5, 0):
+    if float(elem2[1]) < float(points[3][1]):
+        print 'Cutting plane is below the drain base'
+        for i in range(0, len(points)-1):
+            area += det(points[i][0], points[i][1], points[i+1][0], points[i+1][1])
 
-                           __________                                ___________
-      intersectL          /          \                              /           \       intersectR
-                -------->/\           \                            /            /\<---------
-                        /  \           \                          /            /  \
-                       /    \           \               |        /            /    \
-                      /      \           \   Drain base v       /            /      \
-      _______________/        \           \____________________/            /        \____________
-                         theta/\                area                       /\ theta2
-                             (__\_________________________________________/__)
-    """
+        print 'Total Base Cutting Area is: ', areaNegative(area)
+        """
+
+                             __________                                ___________
+        intersectL          /          \                              /           \       intersectR
+                  -------->/\           \                            /            /\<---------
+                          /  \           \                          /            /  \
+                         /    \           \               |        /            /    \
+                        /      \           \   Drain base v       /            /      \
+        _______________/        \           \____________________/            /        \____________
+                           theta/\                area                       /\ theta2
+                               (__\_________________________________________/__)
+                                  elem2                                   elem1
+        """
+
+    else:
+        print 'Cutting plane is above the drain base'
+
+        intersect_cut_xL, intersect_cut_yL = solve(datum(3, 0), datum(3, 1),
+                                                datum(4, 0), datum(4, 1),
+                                                datum(11, 0), datum(11, 1), 0)
+        intersect_cut_xR, intersect_cut_yR = solve(datum(5, 0), datum(5, 1),
+                                                datum(6, 0), datum(6, 1),
+                                                datum(11, 0), datum(11, 1), 0)
+        coordinateL = tuple((str(intersect_cut_xL), str(intersect_cut_yL)))
+        coordinateR = tuple((str(intersect_cut_xR), str(intersect_cut_yR)))
+
+        coordListL = points[:3]
+        coordListL.append(coordinateL)
+        coordListL.append(points[-2])
+        coordListL.append(coordListL[0])
+        cuttingL = 0
+        cuttingR = 0
+
+        coordListR = [coordinateR]
+        coordListR += points[5:9]
+        coordListR.append(coordListR[0])
+
+        """
+
+                             __________                                ___________
+        intersectL          /          \                              /           \       intersectR
+                  -------->/\           \<---left_cutting            /            /\<---------
+                          /  \           \                          /            /  \
+                         /    \           \       right_cutting--->/            /    \
+                        /      \           \                      /            /      \
+                 ______/        \           \                    /            /        \______
+                                 \           \                  /            /
+                                  \___________\________________/____________/
+                               elem2           \ fillingArea  /           elem1
+                                                \____________/
+
+        """
+
+        for i in range(0, len(coordListL)-1):
+            cuttingL += det(coordListL[i][0], coordListL[i][1], coordListL[i+1][0],
+                            coordListL[i+1][1])
+        for i in range(0, len(coordListR)-1):
+            cuttingR += det(coordListR[i][0], coordListR[i][1], coordListR[i+1][0],
+                            coordListR[i+1][1])
+        left_cutting = areaNegative(cuttingL)
+        right_cutting = areaNegative(cuttingR)
+
+        total_cutting = left_cutting + right_cutting
+
+        fillingList = [coordinateL, coordinateR, (str(datum(5, 0)),
+                                                str(datum(5, 1))),
+                                                (str(datum(4, 0)),
+                                                str(datum(4, 1)))]
+        fillingList.append(coordinateL)
+
+        fillingArea = preArea(fillingList)
+        fillingArea = areaNegative(fillingArea)
+        print 'Total Base Cutting Area is: ', total_cutting
+        print 'Total Base Filling Area is: ', fillingArea
+        # intersect_index = points.index((str(datum(8,0)), str(datum(8,1))))
+        # not yet implemented.
+        # adding areas of left and right blocks that are created. First we
+        # have to find out the intersection point.
 
 else:
-    print 'Cutting plane is above the drain base'
-
-    intersect_cut_xL, intersect_cut_yL = solve(datum(3, 0), datum(3, 1),
-                                               datum(4, 0), datum(4, 1),
-                                               datum(11, 0), datum(11, 1), 0)
-    intersect_cut_xR, intersect_cut_yR = solve(datum(5, 0), datum(5, 1),
-                                               datum(6, 0), datum(6, 1),
-                                               datum(11, 0), datum(11, 1), 0)
-    coordinateL = tuple((str(intersect_cut_xL), str(intersect_cut_yL)))
-    coordinateR = tuple((str(intersect_cut_xR), str(intersect_cut_yR)))
-
-    coordListL = points[:3]
-    coordListL.append(coordinateL)
-    coordListL.append(points[-2])
-    coordListL.append(coordListL[0])
-    cuttingL = 0
-    cuttingR = 0
-
-    coordListR = [coordinateR]
-    coordListR += points[5:9]
-    coordListR.append(coordListR[0])
-
+    """
+    if the working space base length is less than the drain base length. Then
+    it will have to reconsider some extra cases. Some extra cutting & filling
+    will be there.
     """
 
-                           __________                                ___________
-      intersectL          /          \                              /           \       intersectR
-                -------->/\           \<---left_cutting            /            /\<---------
-                        /  \           \                          /            /  \
-                       /    \           \       right_cutting--->/            /    \
-                      /      \           \                      /            /      \
-               ______/        \           \                    /            /        \______
-                               \           \                  /            /
-                                \___________\________________/____________/
-                             elem2           \ fillingArea  /           elem1
-                                              \____________/
-
-    """
-
-    for i in range(0, len(coordListL)-1):
-        cuttingL += det(coordListL[i][0], coordListL[i][1], coordListL[i+1][0],
-                        coordListL[i+1][1])
-    for i in range(0, len(coordListR)-1):
-        cuttingR += det(coordListR[i][0], coordListR[i][1], coordListR[i+1][0],
-                        coordListR[i+1][1])
-    left_cutting = areaNegative(cuttingL)
-    right_cutting = areaNegative(cuttingR)
-
-    total_cutting = left_cutting + right_cutting
-
-    fillingList = [coordinateL, coordinateR, (str(datum(5, 0)),
-                                              str(datum(5, 1))),
-                                             (str(datum(4, 0)),
-                                              str(datum(4, 1)))]
-    fillingList.append(coordinateL)
-
-    fillingArea = preArea(fillingList)
-    fillingArea = areaNegative(fillingArea)
-    print 'Total Base Cutting Area is: ', total_cutting
-    print 'Total Base Filling Area is: ', fillingArea
-    # intersect_index = points.index((str(datum(8,0)), str(datum(8,1))))
-    # not yet implemented.
-    # adding areas of left and right blocks that are created. First we
-    # have to find out the intersection point.
+    print 'Sorry. This case is not yet implemented. Contact the Dev. Working \
+space base length is less than the drain base length.'
 
 
 # ######### Placing Block Now ##########
@@ -453,6 +468,11 @@ inner_height = datum(13, 2)
 inner_length = datum(13, 3)
 drawing.add_layer('Block', color=4)
 blockList = block(length, height, inner_height, inner_length)
+if float(elem2[0]) <= blockList[0][0] and float(elem1[0]) >= blockList[1][0]:
+    print ''
+else:
+    print 'Block length should be less than the working space length.'
+    exit()
 
 
 # Covering area after placing block.
@@ -469,7 +489,7 @@ drawing.add(dxf.line(blockList[-2], blockFill_lf, color=100, layer='extension'))
 drawing.add(dxf.line(blockFill_lf, blockFill_ll, color=100, layer='extension'))
 drawing.add(dxf.line(blockList[2], blockFill_rf, color=100, layer='extension'))
 drawing.add(dxf.line(blockFill_rf, blockFill_rl, color=100, layer='extension'))
-pdb.set_trace()
+# pdb.set_trace()
 
 # Intersection point of extension filling line with the working space slanted.
 lFillIntersectx, lFillIntersecty = solve(blockFill_lf[0], blockFill_lf[1],
@@ -625,7 +645,7 @@ for i in range(0, len(final_cutting)-1):
     final_cuttingL += det(final_cutting[i][0], final_cutting[i][1],
                           final_cutting[i+1][0], final_cutting[i+1][1])
 """
-pdb.set_trace()
+# pdb.set_trace()
 
 # dashed line demo.
 # drawing.add(dxf.line((0,0), (25,10),
