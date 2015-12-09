@@ -12,6 +12,8 @@ inner_height = 0
 
 extraCuttingAreaL = 0
 extraFillingAreaL = 0
+extraCuttingAreaR = 0
+extraFillingAreaR = 0
 
 # Getting filename with which the file is to be saved.
 filename = raw_input('Enter a new name for the file:')
@@ -23,6 +25,7 @@ try:
     f = open(csvfile+'.csv')
 except NameError and IOError:
     print '\n ##### Check file name! File', csvfile, '.csv not found#####\n'
+    print 'Try entering (default): coord'
     exit()
 
 
@@ -48,6 +51,7 @@ def drawconti(data):
         """
         if i < 9:
             drawing.add(dxf.line(element1, element2, color=50, layer='Base'))
+            # pdb.set_trace()
             points.append(element1)
         elif i < 11:
             points.append(element1)
@@ -131,20 +135,20 @@ base.
                  |           |_______________|    inner_height
                 height
                                <---------->
-                               inner_width
+                               inner_length
 
                              <----length----->
 
 """
 
-
-def block(length, height, inner_height, inner_width):
+def block(length, height, inner_height, inner_length):
     block_lx = -length / 2
     block_rx = length / 2
     block_y = float(elem1[1])
-    vertical_depth = (length - inner_width) / 2
+    vertical_depth = (length - inner_length) / 2
 
-    drawing.add(dxf.line((block_lx, block_y), (block_rx, block_y), color=75))
+    drawing.add(dxf.line((block_lx, block_y), (block_rx, block_y), color=75,
+                         layer='Block'))
 
     block_height = block_y + height
     horizontal_depth = height - inner_height
@@ -158,7 +162,7 @@ def block(length, height, inner_height, inner_width):
                  (inner_lx, block_height), (block_lx, block_height),
                  (block_lx, block_y)]
 
-    drawing.add(dxf.polyline(blockList, color=75))
+    drawing.add(dxf.polyline(blockList, color=75, layer='Block'))
     return blockList
 
 """
@@ -202,6 +206,7 @@ theta2 = 180 - theta
 """ (finalL_x, finalL_y) are the coordinates of the intersection points
 obtained by solving the left side.
 """
+
 intersectingL_x1, intersectingL_y1 = solve(datum(0, 0), datum(0, 1),
                                            datum(1, 0), datum(1, 1),
                                            datum(11, 0), datum(11, 1), theta)
@@ -211,25 +216,43 @@ intersectingL_x2, intersectingL_y2 = solve(datum(1, 0), datum(1, 1),
 intersectingL_x3, intersectingL_y3 = solve(datum(2, 0), datum(2, 1),
                                            datum(3, 0), datum(3, 1),
                                            datum(11, 0), datum(11, 1), theta)
+intersectingL_x4, intersectingL_y4 = solve(datum(3, 0), datum(3, 1),
+                                           datum(4, 0), datum(4, 1),
+                                           datum(11, 0), datum(11, 1), theta)
 
-if intersectingL_x1 <= datum(1, 0):
+pdb.set_trace()
+
+"""
+The following are the different cases to check to which line the working space
+intersects. (for the left side)
+"""
+
+if intersectingL_x1 <= datum(1, 0) and intersectingL_x1 >= datum(0, 0):
     finalL_x = intersectingL_x1
     finalL_y = intersectingL_y1
     coordinateL = tuple((str(finalL_x), str(finalL_y)))
     points.insert(1, coordinateL)
 
-elif intersectingL_x3 >= datum(2, 0):
-    finalL_x = intersectingL_x3
-    finalL_y = intersectingL_y3
-    coordinateL = tuple((str(finalL_x), str(finalL_y)))
-    points.insert(3, coordinateL)
-
-else:
+elif intersectingL_x2 >= datum(1, 0) and intersectingL_x2 <= datum(2, 0):
     finalL_x = intersectingL_x2
     finalL_y = intersectingL_y2
     coordinateL = tuple((str(finalL_x), str(finalL_y)))
     points.insert(2, coordinateL)
 
+elif intersectingL_x3 >= datum(2, 0) and intersectingL_x3 <= datum(3, 0):
+    finalL_x = intersectingL_x3
+    finalL_y = intersectingL_y3
+    coordinateL = tuple((str(finalL_x), str(finalL_y)))
+    points.insert(3, coordinateL)
+
+elif intersectingL_x4 >= datum(3, 0) and intersectingL_x4 <= datum(4, 0):
+    finalL_x = intersectingL_x4
+    finalL_y = intersectingL_y4
+    coordinateL = tuple((str(finalL_x), str(finalL_y)))
+    points.insert(4, coordinateL)
+
+else:
+    print 'Not a valid case. Possible Error: Wrong angle.'
 
 """ (finalR_x, finalR_y) are the coordinates of the intersection points
 obtained by solving the right side.
@@ -243,26 +266,48 @@ intersectingR_x2, intersectingR_y2 = solve(datum(8, 0), datum(8, 1),
 intersectingR_x3, intersectingR_y3 = solve(datum(7, 0), datum(7, 1),
                                            datum(6, 0), datum(6, 1),
                                            datum(10, 0), datum(10, 1), theta2)
+intersectingR_x4, intersectingR_y4 = solve(datum(6, 0), datum(6, 1),
+                                           datum(5, 0), datum(5, 1),
+                                           datum(10, 0), datum(10, 1), theta2)
 
-if intersectingR_x1 >= datum(8, 0):
+
+"""
+The following are the different cases to check to which line the working space
+intersects. (for the right side)
+"""
+
+if intersectingR_x1 >= datum(8, 0) and intersectingR_x1 <= datum(9, 0):
     finalR_x = intersectingR_x1
     finalR_y = intersectingR_y1
     coordinateR = tuple((str(finalR_x), str(finalR_y)))
     index = points.index((str(datum(8, 0)), str(datum(8, 1))))
-    points.insert(index, coordinateR)
+    points.insert(index + 1, coordinateR)
 
-elif intersectingR_x3 <= datum(7, 0):
-    finalR_x = intersectingR_x3
-    finalR_y = intersectingR_y3
-    coordinateR = tuple((str(finalR_x), str(finalR_y)))
-    index = points.index((str(datum(7, 0)), str(datum(7, 1))))
-    points.insert(index, coordinateR)
-
-else:
+elif intersectingR_x2 >= datum(7, 0) and intersectingR_x2 <= datum(8, 0):
     finalR_x = intersectingR_x2
     finalR_y = intersectingR_y2
     coordinateR = tuple((str(finalR_x), str(finalR_y)))
-    points.insert(9, coordinateR)
+    index = points.index((str(datum(7, 0)), str(datum(7, 1))))
+    points.insert(index + 1, coordinateR)
+
+elif intersectingR_x3 >= datum(6, 0) and intersectingR_x3 <= datum(7, 0):
+    finalR_x = intersectingR_x3
+    finalR_y = intersectingR_y3
+    coordinateR = tuple((str(finalR_x), str(finalR_y)))
+    index = points.index((str(datum(6, 0)), str(datum(6, 1))))
+    points.insert(index + 1, coordinateR)
+
+elif intersectingR_x4 >= datum(5, 0) and intersectingR_x4 <= datum(6, 0):
+    finalR_x = intersectingR_x4
+    finalR_y = intersectingR_y4
+    coordinateR = tuple((str(finalR_x), str(finalR_y)))
+    index = points.index((str(datum(5, 0)), str(datum(5, 1))))
+    points.insert(index + 1, coordinateR)
+
+else:
+    print 'Not a valid case. Possible Error: Wrong angle.'
+    exit()
+
 # Intersection points.
 intersectL = tuple((finalL_x, finalL_y))
 intersectR = tuple((finalR_x, finalR_y))
@@ -400,29 +445,30 @@ else:
     # have to find out the intersection point.
 
 
-drawing.add_layer('Block', color=4)
 # ######### Placing Block Now ##########
 
-length = 1.3930
-height = 0.4100
-inner_height = 0.3340
-inner_width = 0.9350
-blockList = block(length, height, inner_height, inner_width)
+length = datum(13, 0)
+height = datum(13, 1)
+inner_height = datum(13, 2)
+inner_length = datum(13, 3)
+drawing.add_layer('Block', color=4)
+blockList = block(length, height, inner_height, inner_length)
 
 
 # Covering area after placing block.
 
-margin1 = 0.3050
-margin2 = 0.3190
+drawing.add_layer('extension', color=4)
+margin1 = datum(14, 0)
+margin2 = datum(14, 1)
 blockFill_lf = (blockList[-2][0] - margin1, blockList[-2][1])
 blockFill_ll = (blockList[-2][0] - margin1 - margin2, datum(0, 1))
 blockFill_rf = (blockList[2][0] + margin1, blockList[2][1])
 blockFill_rl = (blockList[2][0] + margin1 + margin2, datum(0, 1))
 
-drawing.add(dxf.line(blockList[-2], blockFill_lf, color=100))
-drawing.add(dxf.line(blockFill_lf, blockFill_ll, color=100))
-drawing.add(dxf.line(blockList[2], blockFill_rf, color=100))
-drawing.add(dxf.line(blockFill_rf, blockFill_rl, color=100))
+drawing.add(dxf.line(blockList[-2], blockFill_lf, color=100, layer='extension'))
+drawing.add(dxf.line(blockFill_lf, blockFill_ll, color=100, layer='extension'))
+drawing.add(dxf.line(blockList[2], blockFill_rf, color=100, layer='extension'))
+drawing.add(dxf.line(blockFill_rf, blockFill_rl, color=100, layer='extension'))
 pdb.set_trace()
 
 # Intersection point of extension filling line with the working space slanted.
@@ -523,7 +569,6 @@ else:
 
 
 print '################## Block placed! ###################'
-
 
 
 """
