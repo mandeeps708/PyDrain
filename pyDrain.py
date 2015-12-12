@@ -141,6 +141,7 @@ base.
 
 """
 
+
 def block(length, height, inner_height, inner_length):
     block_lx = -length / 2
     block_rx = length / 2
@@ -188,8 +189,8 @@ This drawconti(data) will create the base of the drain something like following.
            /              \                          /               \
           /                \                        /                 \
          /                  \                      /                   \
-________/           theta   /\                    /\  theta2            \________
-                           (__\__________________/__)
+________/                    \                    /                     \________
+                              \__________________/
 
 """
 
@@ -367,7 +368,8 @@ if float(elem2[0]) < datum(4, 0) and float(elem1[0]) > datum(5, 0):
     if float(elem2[1]) < float(points[3][1]):
         print 'Cutting plane is below the drain base'
         for i in range(0, len(points)-1):
-            area += det(points[i][0], points[i][1], points[i+1][0], points[i+1][1])
+            area += det(points[i][0], points[i][1], points[i+1][0],
+                        points[i+1][1])
 
         print 'Total Base Cutting Area is: ', areaNegative(area)
         """
@@ -388,11 +390,13 @@ if float(elem2[0]) < datum(4, 0) and float(elem1[0]) > datum(5, 0):
         print 'Cutting plane is above the drain base'
 
         intersect_cut_xL, intersect_cut_yL = solve(datum(3, 0), datum(3, 1),
-                                                datum(4, 0), datum(4, 1),
-                                                datum(11, 0), datum(11, 1), 0)
+                                                   datum(4, 0), datum(4, 1),
+                                                   datum(11, 0), datum(11, 1),
+                                                   0)
         intersect_cut_xR, intersect_cut_yR = solve(datum(5, 0), datum(5, 1),
-                                                datum(6, 0), datum(6, 1),
-                                                datum(11, 0), datum(11, 1), 0)
+                                                   datum(6, 0), datum(6, 1),
+                                                   datum(11, 0), datum(11, 1),
+                                                   0)
         coordinateL = tuple((str(intersect_cut_xL), str(intersect_cut_yL)))
         coordinateR = tuple((str(intersect_cut_xR), str(intersect_cut_yR)))
 
@@ -424,20 +428,20 @@ if float(elem2[0]) < datum(4, 0) and float(elem1[0]) > datum(5, 0):
         """
 
         for i in range(0, len(coordListL)-1):
-            cuttingL += det(coordListL[i][0], coordListL[i][1], coordListL[i+1][0],
-                            coordListL[i+1][1])
+            cuttingL += det(coordListL[i][0], coordListL[i][1],
+                            coordListL[i+1][0], coordListL[i+1][1])
         for i in range(0, len(coordListR)-1):
-            cuttingR += det(coordListR[i][0], coordListR[i][1], coordListR[i+1][0],
-                            coordListR[i+1][1])
+            cuttingR += det(coordListR[i][0], coordListR[i][1],
+                            coordListR[i+1][0], coordListR[i+1][1])
         left_cutting = areaNegative(cuttingL)
         right_cutting = areaNegative(cuttingR)
 
         total_cutting = left_cutting + right_cutting
 
         fillingList = [coordinateL, coordinateR, (str(datum(5, 0)),
-                                                str(datum(5, 1))),
-                                                (str(datum(4, 0)),
-                                                str(datum(4, 1)))]
+                                                  str(datum(5, 1))),
+                                                 (str(datum(4, 0)),
+                                                  str(datum(4, 1)))]
         fillingList.append(coordinateL)
 
         fillingArea = preArea(fillingList)
@@ -503,11 +507,11 @@ angleSlopeL = slope(datum(1, 0), datum(1, 1), datum(2, 0), datum(2, 1))
 
 # Intersection of drain left slanted line with the block extension line.
 extensionIntersectLx, extensionIntersectLy = solve(blockFill_lf[0],
-                                                 blockFill_lf[1],
-                                                 blockFill_ll[0],
-                                                 blockFill_ll[1],
-                                                 datum(1, 0), datum(1, 1),
-                                                 angleSlopeL)
+                                                   blockFill_lf[1],
+                                                   blockFill_ll[0],
+                                                   blockFill_ll[1],
+                                                   datum(1, 0), datum(1, 1),
+                                                   angleSlopeL)
 extensionIntersectL = tuple((extensionIntersectLx, extensionIntersectLy))
 
 
@@ -523,11 +527,11 @@ angleSlopeR = slope(datum(8, 0), datum(8, 1), datum(7, 0), datum(7, 1))
 
 # Intersection of drain right slanted line with the block extension line.
 extensionIntersectRx, extensionIntersectRy = solve(blockFill_rf[0],
-                                                 blockFill_rf[1],
-                                                 blockFill_rl[0],
-                                                 blockFill_rl[1],
-                                                 datum(8, 0), datum(8, 1),
-                                                 angleSlopeR)
+                                                   blockFill_rf[1],
+                                                   blockFill_rl[0],
+                                                   blockFill_rl[1],
+                                                   datum(8, 0), datum(8, 1),
+                                                   angleSlopeR)
 extensionIntersectR = tuple((extensionIntersectRx, extensionIntersectRy))
 # Different Cases for extra outer filling and cutting.
 
@@ -537,36 +541,46 @@ Case I:
 """
 
 if extensionIntersectLy < finalL_y and extensionIntersectLy > datum(1, 1):
-    extraCuttingCoordL = [intersectL, extensionIntersectL, lFillIntersect,
-                         intersectL]
-    extraFillingCoordL = [extensionIntersectL, (datum(1, 0), datum(1, 1)),
-                         blockFill_ll, extensionIntersectL]
+    # if the extension point lies at the right of the leftover area.
+    if blockFill_lf[0] > lFillIntersectx and blockFill_lf[1] > lFillIntersecty:
+        extraCuttingCoordL = [intersectL, extensionIntersectL, lFillIntersect,
+                              intersectL]
+        extraFillingCoordL = [extensionIntersectL, (datum(1, 0), datum(1, 1)),
+                              blockFill_ll, extensionIntersectL]
 
-    extraCuttingAreaL = preArea(extraCuttingCoordL)
-    extraCuttingAreaL = areaNegative(extraCuttingAreaL)
+        extraCuttingAreaL = preArea(extraCuttingCoordL)
+        extraCuttingAreaL = areaNegative(extraCuttingAreaL)
 
-    extraFillingAreaL = preArea(extraFillingCoordL)
-    extraFillingAreaL = areaNegative(extraFillingAreaL)
+        extraFillingAreaL = preArea(extraFillingCoordL)
+        extraFillingAreaL = areaNegative(extraFillingAreaL)
 
-    majorFillingCoordL = [lFillIntersect, blockFill_lf, blockList[7],
-                         blockList[0], (datum(11, 0), datum(11, 1)),
-                         lFillIntersect]
-    majorFillingAreaL = preArea(majorFillingCoordL)
-    majorFillingAreaL = areaNegative(majorFillingAreaL)
+        majorFillingCoordL = [lFillIntersect, blockFill_lf, blockList[7],
+                              blockList[0], (datum(11, 0), datum(11, 1)),
+                              lFillIntersect]
+        majorFillingAreaL = preArea(majorFillingCoordL)
+        majorFillingAreaL = areaNegative(majorFillingAreaL)
 
+    # if the extension point lies to the left of the leftover area.
+    elif blockFill_lf[0] < lFillIntersectx and blockFill_lf[1] > lFillIntersecty:
+        print 'extension point lies to right. Not implemented yet.'
+
+    else:
+        print 'extension point lies in between leftover area.'
+
+# if extension line don't cut the leftover area.
 else:
     majorFillingCoordL = [blockFill_ll, blockFill_lf, blockList[7],
-                         blockList[0], (datum(11, 0), datum(11, 1)),
-                         intersectL, (datum(1, 0), datum(1, 1)), blockFill_ll]
+                          blockList[0], (datum(11, 0), datum(11, 1)),
+                          intersectL, (datum(1, 0), datum(1, 1)), blockFill_ll]
     majorFillingAreaL = preArea(majorFillingCoordL)
     majorFillingAreaL = areaNegative(majorFillingAreaL)
 
 # For right hand side
 if extensionIntersectRy < finalR_y and extensionIntersectRy > datum(8, 1):
     extraCuttingCoordR = [intersectR, extensionIntersectR, rFillIntersect,
-                         intersectR]
+                          intersectR]
     extraFillingCoordR = [extensionIntersectR, (datum(8, 0), datum(8, 1)),
-                         blockFill_rl, extensionIntersectR]
+                          blockFill_rl, extensionIntersectR]
 
     extraCuttingAreaR = preArea(extraCuttingCoordR)
     extraCuttingAreaR = areaNegative(extraCuttingAreaR)
@@ -575,34 +589,33 @@ if extensionIntersectRy < finalR_y and extensionIntersectRy > datum(8, 1):
     extraFillingAreaR = areaNegative(extraFillingAreaR)
 
     majorFillingCoordR = [rFillIntersect, blockFill_rf, blockList[2],
-                         blockList[1], (datum(10, 0), datum(10, 1)),
-                         rFillIntersect]
+                          blockList[1], (datum(10, 0), datum(10, 1)),
+                          rFillIntersect]
     majorFillingAreaR = preArea(majorFillingCoordR)
     majorFillingAreaR = areaNegative(majorFillingAreaR)
 
 else:
     majorFillingCoordR = [blockFill_rl, blockFill_rf, blockList[2],
-                         blockList[1], (datum(10, 0), datum(10, 1)),
-                         intersectR, (datum(8, 0), datum(8, 1)), blockFill_rl]
+                          blockList[1], (datum(10, 0), datum(10, 1)),
+                          intersectR, (datum(8, 0), datum(8, 1)), blockFill_rl]
     majorFillingAreaR = preArea(majorFillingCoordR)
     majorFillingAreaR = areaNegative(majorFillingAreaR)
 
 
 print '################## Block placed! ###################'
 
-
 """
 
-              __________                                ___________
-             /          \                              /           \
-            /            \                            /             \
-           /              \                          /               \
-          /                \                        /                 \
-         /                  \                      /                   \
-________/                    \                    /                     \________
-                              \__________________/
-
+                   /\                                                     /\
+                  /  \                                                   /  \
+                 /    \                                                 /    \
+                /      \                                               /      \
+_______________/        \                                             /        \____________
+                   theta/\                                           /\ theta2
+                       (__\_________________________________________/__)
+                          elem2                                   elem1
 """
+
 print 'Left Major Filling Area: ', majorFillingAreaL
 print 'Left Extra Cutting Area: ', extraCuttingAreaL
 print 'Left Extra Filling Area: ', extraFillingAreaL
@@ -645,7 +658,7 @@ for i in range(0, len(final_cutting)-1):
     final_cuttingL += det(final_cutting[i][0], final_cutting[i][1],
                           final_cutting[i+1][0], final_cutting[i+1][1])
 """
-# pdb.set_trace()
+pdb.set_trace()
 
 # dashed line demo.
 # drawing.add(dxf.line((0,0), (25,10),
