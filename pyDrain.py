@@ -2,6 +2,7 @@ from dxfwrite import DXFEngine as dxf
 import csv
 import math
 import pdb
+import os
 
 # ######### Declaration ##########
 points = []
@@ -20,12 +21,15 @@ filename = raw_input('Enter a new name for the file:')
 drawing = dxf.drawing(filename+'.dxf')
 
 # CSV file input.
+print '\nCSV files in the current directory'
+os.system("ls *.csv")
 try:
-    csvfile = raw_input('Enter the name of CSV file (without extension):')
+    csvfile = raw_input('\nEnter the name of CSV file (without extension):')
     f = open(csvfile+'.csv')
 except NameError and IOError:
     print '\n ##### Check file name! File ' + csvfile + '.csv not found#####\n'
-    print 'Try entering (default): coord'
+    print 'Try using one from the following: (without extension)'
+    os.system("ls *.csv")
     exit()
 
 
@@ -543,10 +547,19 @@ Case I:
 if extensionIntersectLy < finalL_y and extensionIntersectLy > datum(1, 1):
     # if the extension point lies at the right of the leftover area.
     if blockFill_lf[0] > lFillIntersectx and blockFill_lf[1] > lFillIntersecty:
+
+        # if the extension intersect point lies above the base drain.
+        if extensionIntersectLy > datum(1, 1):
+            extraFillingCoordL = [extensionIntersectL, (datum(1, 0),
+                                                        datum(1, 1)),
+                                  blockFill_ll, extensionIntersectL]
+        else:
+            print 'This case is not implemented yet. The upper portion of \
+                block is less than the base level.'
+            exit()
+
         extraCuttingCoordL = [intersectL, extensionIntersectL, lFillIntersect,
                               intersectL]
-        extraFillingCoordL = [extensionIntersectL, (datum(1, 0), datum(1, 1)),
-                              blockFill_ll, extensionIntersectL]
 
         extraCuttingAreaL = preArea(extraCuttingCoordL)
         extraCuttingAreaL = areaNegative(extraCuttingAreaL)
@@ -563,9 +576,11 @@ if extensionIntersectLy < finalL_y and extensionIntersectLy > datum(1, 1):
     # if the extension point lies to the left of the leftover area.
     elif blockFill_lf[0] < lFillIntersectx and blockFill_lf[1] > lFillIntersecty:
         print 'extension point lies to right. Not implemented yet.'
+        exit()
 
     else:
         print 'extension point lies in between leftover area.'
+        exit()
 
 # if extension line don't cut the leftover area.
 else:
@@ -577,23 +592,45 @@ else:
 
 # For right hand side
 if extensionIntersectRy < finalR_y and extensionIntersectRy > datum(8, 1):
-    extraCuttingCoordR = [intersectR, extensionIntersectR, rFillIntersect,
-                          intersectR]
-    extraFillingCoordR = [extensionIntersectR, (datum(8, 0), datum(8, 1)),
-                          blockFill_rl, extensionIntersectR]
+    # if the extension point lies at the right of the leftover area.
+    if blockFill_rf[0] < rFillIntersectx and blockFill_rf[1] > rFillIntersecty:
 
-    extraCuttingAreaR = preArea(extraCuttingCoordR)
-    extraCuttingAreaR = areaNegative(extraCuttingAreaR)
+        # if the extension intersect point lies above the base drain.
+        if extensionIntersectRy > datum(8, 1):
+            extraFillingCoordR = [extensionIntersectR, (datum(8, 0),
+                                                        datum(8, 1)),
+                                  blockFill_rl, extensionIntersectR]
 
-    extraFillingAreaR = preArea(extraFillingCoordR)
-    extraFillingAreaR = areaNegative(extraFillingAreaR)
+        else:
+            print 'This case is not implemented yet. The upper portion of \
+                block is less than the base level.'
+            exit()
 
-    majorFillingCoordR = [rFillIntersect, blockFill_rf, blockList[2],
-                          blockList[1], (datum(10, 0), datum(10, 1)),
-                          rFillIntersect]
-    majorFillingAreaR = preArea(majorFillingCoordR)
-    majorFillingAreaR = areaNegative(majorFillingAreaR)
+        extraCuttingCoordR = [intersectR, extensionIntersectR, rFillIntersect,
+                              intersectR]
 
+        extraCuttingAreaR = preArea(extraCuttingCoordR)
+        extraCuttingAreaR = areaNegative(extraCuttingAreaR)
+
+        extraFillingAreaR = preArea(extraFillingCoordR)
+        extraFillingAreaR = areaNegative(extraFillingAreaR)
+
+        majorFillingCoordR = [rFillIntersect, blockFill_rf, blockList[2],
+                              blockList[1], (datum(10, 0), datum(10, 1)),
+                              rFillIntersect]
+        majorFillingAreaR = preArea(majorFillingCoordR)
+        majorFillingAreaR = areaNegative(majorFillingAreaR)
+
+    # if the extension point lies to the left of the leftover area.
+    elif blockFill_rf[0] > rFillIntersectx and blockFill_rf[1] > rFillIntersecty:
+        print 'extension point lies to left. Not implemented yet.'
+        exit()
+
+    else:
+        print 'extension point lies in between leftover area.'
+        exit()
+
+# if extension line don't cut the leftover area.
 else:
     majorFillingCoordR = [blockFill_rl, blockFill_rf, blockList[2],
                           blockList[1], (datum(10, 0), datum(10, 1)),
@@ -606,13 +643,14 @@ print '################## Block placed! ###################'
 
 """
 
-                   /\                                                     /\
-                  /  \                                                   /  \
-                 /    \                                                 /    \
-                /      \                                               /      \
-_______________/        \                                             /        \____________
-                   theta/\                                           /\ theta2
-                       (__\_________________________________________/__)
+                                _____                       ____
+                   /\           |   |                      |  |          /\
+                  /  \          |   |                      |  |         /  \
+                 /    \         |   |                      |  |        /    \
+                /      \        |   |                      |  |       /      \
+_______________/        \       |   |______________________|  |      /        \____________
+                   theta/\      |                             |     /\ theta2
+                       (__\_____|_____________________________|____/__)
                           elem2                                   elem1
 """
 
