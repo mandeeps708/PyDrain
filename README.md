@@ -4,11 +4,11 @@ Creating drawing of Drain using coordinates from CSV file. Calculates the cuttin
 Pre-requisite
 -------------
 
-- Python 2.7:
+- Python 2.7
 
 - dxfwrite:
 
-    $ `pip install dxfwrite`
+    $ `sudo pip install dxfwrite`
 
 Execution:
 ----------
