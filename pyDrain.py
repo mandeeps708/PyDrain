@@ -3,6 +3,7 @@ import csv
 import math
 import pdb
 import os
+import sys
 
 # ######### Declaration ##########
 points = []
@@ -17,22 +18,24 @@ extraCuttingAreaR = 0
 extraFillingAreaR = 0
 
 # Getting filename with which the file is to be saved.
-filename = raw_input('Enter a new name for the file:')
-drawing = dxf.drawing(filename+'.dxf')
+namefile=sys.argv[1]
+print(namefile)
+drawing = dxf.drawing(sys.argv[1]+'.dxf')
 
 # CSV file input.
-print '\nCSV files in the current directory'
-os.system("ls *.csv")
-try:
-    csvfile = raw_input('\nEnter the name of CSV file (without extension):')
+#print '\nCSV files in the current directory'
+#os.system("ls *.csv")
+"""try:
+    csvfile = raw_input('Enter the name of CSV file (without extension):')
     f = open(csvfile+'.csv')
 except NameError and IOError:
     print '\n ##### Check file name! File ' + csvfile + '.csv not found#####\n'
     print 'Try using one from the following: (without extension)'
     os.system("ls *.csv")
     exit()
+"""
 
-
+f = open(sys.argv[2])
 # Adding csv lines to list data.
 for row in csv.reader(f):
     data.append(row)
@@ -696,7 +699,7 @@ for i in range(0, len(final_cutting)-1):
     final_cuttingL += det(final_cutting[i][0], final_cutting[i][1],
                           final_cutting[i+1][0], final_cutting[i+1][1])
 """
-pdb.set_trace()
+#pdb.set_trace()
 
 # dashed line demo.
 # drawing.add(dxf.line((0,0), (25,10),
@@ -704,4 +707,4 @@ pdb.set_trace()
 
 # Saving file now.
 drawing.save()
-print "Check file " + filename + ".dxf in current directory."
+print "Check file " + sys.argv[1] + ".dxf in current directory."
